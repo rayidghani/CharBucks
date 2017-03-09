@@ -1,10 +1,8 @@
-# ArtorFart
+# Latte Art Classifier
 
-## Latte Art Classifier
+## Usage Instructions:
 
-Usage Instructions:
-
-1. Install tensorflow
+1. Install tensorflow (in a docker container)
 2. Clone this repo
 3. label_web_image.sh URL_OF_IMAGE
 
@@ -15,7 +13,7 @@ python tensorflow/examples/image_retraining/retrain.py --bottleneck_dir=/lattear
 
 ## To label a single image locally
 
-python label_image.py /latteart/newdata/Z.jpg
+python label_image.py /latteart/images_to_label/Z.jpg
 
 ## To label a single image by url
 
@@ -23,9 +21,9 @@ python label_image.py /latteart/newdata/Z.jpg
 
 ## To label a directory of images
 
-python label_dir.py latteart/newdata/
+python label_dir.py latteart/images_to_label/
 
 ## to label a yelp business by id
 
-./get_rating.sh blue-bottle-coffee-los-angeles-17 latteart/newdata/
+./get_rating.sh blue-bottle-coffee-los-angeles-17 latteart/images_to_label/
 
