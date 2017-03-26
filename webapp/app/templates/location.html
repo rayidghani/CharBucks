@@ -1,0 +1,21 @@
+<!-- index.html-->
+
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+
+<div class="jumbotron">
+<h4>Location to search:</h4>
+    <div class="row">
+      <form method="post">
+        <dl>
+          <dd><textarea rows="2" cols="60" name="posttext"></textarea></dd>
+          <dd><input type="submit" value="Submit" class="btn btn-primary btn-sm"/></dd>
+        </dl>
+      </form>
+    </div>
+
+
+  <p class="lead">{{ results }}</p>
+</div>
+{% endblock %}
