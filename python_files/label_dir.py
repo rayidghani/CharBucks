@@ -40,7 +40,7 @@ with tf.Session() as sess:
     for imageFile in imgFiles:
         image_data =  tf.gfile.FastGFile(varPath+"/"+imageFile, 'rb').read()       
 
-        print (imageFile)
+        #print (imageFile)
         predictions = sess.run(softmax_tensor, \
                  {'DecodeJpeg/contents:0': image_data})
         
@@ -60,4 +60,4 @@ with tf.Session() as sess:
 
     #print('total images = %s' % (img_count))
     #print('latte images = %s' % (latte_count))
-    print latte_count img_count
+    print('%s %s' % (latte_count,img_count))

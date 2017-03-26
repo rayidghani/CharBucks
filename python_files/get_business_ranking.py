@@ -2,8 +2,16 @@ import subprocess
 import get_yelp_businesses
 import time
 import random
+import sys
 
-location = "chicago"
+# takes a location as input and returns 2 numbers or each business
+# number of latte art images, total number of images
+
+location = sys.argv[1]
+
+if location is None:
+    location = "chicago"
+
 bizids = get_yelp_businesses.get_business_ids_from_api(location)
 imgdir ='latteart/images_to_label/'
 
@@ -19,7 +27,8 @@ for biz in bizids:
     #print cmd_to_call
     p = subprocess.Popen(cmd_to_call, shell=True, stdout = subprocess.PIPE)
     out,err = p.communicate()
-    scores[biz]=out
+    bizurl = 'http://www.yelp.com/biz/' + biz
+    scores[bizurl]=out
     wait_time = random.randint(1, 5)
     time.sleep(wait_time)
 

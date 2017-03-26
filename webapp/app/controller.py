@@ -25,3 +25,12 @@ def classify_bizid():
             return render_template("bizid.html", results=result)
     return render_template("bizid.html")
 
+@app.route('/location', methods=['POST', 'GET'])
+def classify_location():
+    if request.method == 'POST':
+        posttext = request.form['posttext']
+        if posttext is not "":
+            result = model.get_biz_scores_from_location(posttext)
+            print(result)
+            return render_template("location.html", results=result)
+    return render_template("location.html")

@@ -1,1 +1,3 @@
 *.pyc
+creds.py
+python_files/latteart/images_to_label/*
