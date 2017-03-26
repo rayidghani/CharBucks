@@ -4,6 +4,10 @@ import urllib
 import os
 import shutil
 import sys
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def main(argv):
     """Function used to download yelp images for a business
@@ -17,6 +21,8 @@ def main(argv):
     """
     biz_name = sys.argv[1] 
     image_download_path = sys.argv[2]
+    logger.info('Grabbing images for %s and putting them in %s', biz_name, image_download_path)
+
     # delete if the directory already exists from last run
     shutil.rmtree(image_download_path)
     # make the directory again
@@ -30,10 +36,15 @@ def main(argv):
     soup = BeautifulSoup(page.read(), 'html.parser')
     photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
     i=0
-    for photo in photos:
-        urllib.urlretrieve(photo['src'], image_download_path + str(i) +".jpg")
-        i+=1
-    return i
+    logger.info('Found %s images', len(photos))
+    if len(photos) > 0:
+        for photo in photos:
+            urllib.urlretrieve(photo['src'], image_download_path + str(i) +".jpg")
+            i+=1
+        logger.info('Finished getting %s images for %s', i, biz_name)
+        return i
+    else:
+        logger.error('No photos found', exc_info=True)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
