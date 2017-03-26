@@ -39,6 +39,10 @@ except ImportError:
     from urllib import quote
     from urllib import urlencode
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # OAuth credential placeholders that must be filled in by users.
 # You can find them on
@@ -155,6 +159,7 @@ def get_business_ids_from_api(location, num_of_businesses_to_get):
     """
     bearer_token = obtain_bearer_token(API_HOST, TOKEN_PATH)
 
+    logger.info('Getting search results from api')
     response = search(bearer_token, location, num_of_businesses_to_get)
 
     businesses = response.get('businesses')
@@ -186,6 +191,7 @@ def main():
 
     try:
         # query_api(input_values.location)
+        logger.info('Getting %s businesses for location %s from api', num_of_businesses_to_get, location)
         get_business_ids_from_api(input_values.location, input_values.num_of_businesses_to_get)
     except HTTPError as error:
         sys.exit(
