@@ -28,5 +28,7 @@ python label_dir.py latteart/images_to_label/
 ./get_rating.sh blue-bottle-coffee-los-angeles-17 latteart/images_to_label/
 
 ## other notes
-
-docker run -it -d -v ~/Projects/CharBucks:/latteart/ -w /latteart rayid/tensorflow:image-class
+name image
+docker tag 
+docker run -it -d -v ~/Projects/CharBucks/python_files/:/latteart/ -w /latteart rayid/tensorflow:image-class
+change container id in model.py
