@@ -1,5 +1,5 @@
 import subprocess
-container_id = '0416c3dd655c'
+container_id = 'da2df1d2a265'
 
 def get_score(image_url):
     classify_cmd = "'/latteart/label_web_image.sh " + str(image_url) + "'"

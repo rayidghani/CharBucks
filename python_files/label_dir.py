@@ -46,14 +46,18 @@ with tf.Session() as sess:
         
         # Sort to show labels of first prediction in order of confidence
         top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
-        firstElt = top_k[0];
-        human_string = label_lines[firstElt]
-        score = predictions[0][firstElt]
-        print('%s %s (score = %.5f)' % (firstElt, human_string, score))
-        if (firstElt == 1 and score > 0.5) or (firstElt == 0 and score < 0.65):
-            latte_count +=1
+        positive_score = round(predictions[0][1],2)
+        if (positive_score > 0.6):
+            latte_count+=1
+        #firstElt = top_k[0];
+        #human_string = label_lines[firstElt]
+        #score = predictions[0][firstElt]
+        #print('%s %s (score = %.5f)' % (firstElt, human_string, score))
+        #if (firstElt == 1 and score > 0.5) or (firstElt == 0 and score < 0.65):
+        #    latte_count +=1
             #print imageFile
  	img_count += 1
 
-    print('total images = %s' % (img_count))
-    print('latte images = %s' % (latte_count))
+    #print('total images = %s' % (img_count))
+    #print('latte images = %s' % (latte_count))
+    print latte_count img_count

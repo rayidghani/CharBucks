@@ -1,17 +1,16 @@
 import tensorflow as tf
 import sys
 
-# change this as you see fit
 image_path = sys.argv[1]
 
 # Read in the image_data
 image_data = tf.gfile.FastGFile(image_path, 'rb').read()
 
-# Loads label file, strips off carriage return
+# Load label file and strip off carriage return
 label_lines = [line.rstrip() for line 
                    in tf.gfile.GFile("latteart/retrained_labels.txt")]
 
-# Unpersists graph from file
+# Unpersist graph from file
 with tf.gfile.FastGFile("latteart/retrained_graph.pb", 'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
@@ -26,8 +25,14 @@ with tf.Session() as sess:
     
     # Sort to show labels of first prediction in order of confidence
     top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
-    
-    for node_id in top_k:
-        human_string = label_lines[node_id]
-        score = predictions[0][node_id]
-        print('%s (score = %.5f)' % (human_string, score))
+
+    # Get prediction score for positive class
+    positive_score = round(predictions[0][1],2)
+    print positive_score
+
+
+    # code for printing out probability for both classes
+    #for node_id in top_k:
+    #    human_string = label_lines[node_id]
+    #    score = predictions[0][node_id]
+    #    print('%s (score = %.5f)' % (human_string, score))
