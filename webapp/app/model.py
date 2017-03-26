@@ -1,5 +1,5 @@
 import subprocess
-container_id = 'e980159059f9'
+container_id = 'latte'
 
 def get_score(image_url):
     classify_cmd = "'/latteart/label_web_image.sh " + str(image_url) + "'"
@@ -15,8 +15,8 @@ def get_biz_score(bizid):
     out,err = p.communicate()
     return out
 
-def get_biz_scores_from_location(location):
-    classify_cmd = "'python /latteart/get_business_ranking.py " + str(location) + "'"
+def get_biz_scores_from_location(location, limit):
+    classify_cmd = "'python /latteart/get_business_ranking.py " + str(location) + " " + str(limit) + "'"
     cmd = "docker exec " + container_id + " sh -c " + classify_cmd
     p = subprocess.Popen(cmd, shell=True, stdout = subprocess.PIPE)
     out,err = p.communicate()

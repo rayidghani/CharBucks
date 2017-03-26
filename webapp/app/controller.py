@@ -29,8 +29,9 @@ def classify_bizid():
 def classify_location():
     if request.method == 'POST':
         posttext = request.form['posttext']
+        limit = request.form['limit']
         if posttext is not "":
-            result = model.get_biz_scores_from_location(posttext)
+            result = model.get_biz_scores_from_location(posttext, limit)
             print(result)
             return render_template("location.html", results=result)
     return render_template("location.html")

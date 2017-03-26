@@ -6,7 +6,8 @@ fi
 
 bizname=$1
 imgdir='latteart/images_to_label/'
+threshold='0.6'
 
 python get_yelp_images.py $bizname $imgdir
-python label_dir.py $imgdir
+python label_dir.py $imgdir $threshold
 

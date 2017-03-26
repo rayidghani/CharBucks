@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Yelp Fusion API code sample.
+Adapted from Yelp Fusion API code sample.
 
 This program demonstrates the capability of the Yelp Fusion API
 by using the Search API to query for businesses by a search term and location,
@@ -14,7 +14,7 @@ This program requires the Python requests library, which you can install via:
 `pip install -r requirements.txt`.
 
 Sample usage of the program:
-`python sample.py --term="bars" --location="San Francisco, CA"`
+`python sample.py --location="San Francisco, CA"`
 """
 from __future__ import print_function
 
@@ -53,12 +53,6 @@ SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH = '/v3/businesses/'  # Business ID will come after slash.
 TOKEN_PATH = '/oauth2/token'
 GRANT_TYPE = 'client_credentials'
-
-
-# Defaults for our simple example.
-DEFAULT_TERM = 'dinner'
-DEFAULT_LOCATION = 'San Francisco, CA'
-SEARCH_LIMIT = 3
 
 
 def obtain_bearer_token(host, path):
@@ -119,12 +113,12 @@ def request(host, path, bearer_token, url_params=None):
     return response.json()
 
 
-def search(bearer_token, location):
+def search(bearer_token, location, num_of_businesses_to_get):
     """Query the Search API by a search term and location.
 
     Args:
-        term (str): The search term passed to the API.
         location (str): The search location passed to the API.
+        num_of_businesses_to_get (int): # of businesses you want to get 
 
     Returns:
         dict: The JSON response from the request.
@@ -135,7 +129,7 @@ def search(bearer_token, location):
         'term': term.replace(' ', '+'),
         'categories': category.replace(' ', '+'),
         'location': location.replace(' ', '+'),
-        'limit': SEARCH_LIMIT
+        'limit': num_of_businesses_to_get
     }
     return request(API_HOST, SEARCH_PATH, bearer_token, url_params=url_params)
 
@@ -153,7 +147,7 @@ def get_business(bearer_token, business_id):
 
     return request(API_HOST, business_path, bearer_token)
 
-def get_business_ids_from_api(location):
+def get_business_ids_from_api(location, num_of_businesses_to_get):
     """Queries the API by the input values from the user.
 
     Args:
@@ -161,7 +155,7 @@ def get_business_ids_from_api(location):
     """
     bearer_token = obtain_bearer_token(API_HOST, TOKEN_PATH)
 
-    response = search(bearer_token, location)
+    response = search(bearer_token, location, num_of_businesses_to_get)
 
     businesses = response.get('businesses')
 
@@ -184,11 +178,15 @@ def main():
                         default=DEFAULT_LOCATION, type=str,
                         help='Search location (default: %(default)s)')
 
+    parser.add_argument('-n', '--numbusinesses', dest='num_of_businesses_to_get', default=DEFAULT_LIMIT,
+                        type=str, help='Search term (default: %(default)s)')
+
+
     input_values = parser.parse_args()
 
     try:
         # query_api(input_values.location)
-        get_business_ids_from_api(input_values.location)
+        get_business_ids_from_api(input_values.location, input_values.num_of_businesses_to_get)
     except HTTPError as error:
         sys.exit(
             'Encountered HTTP error {0} on {1}:\n {2}\nAbort program.'.format(

@@ -30,5 +30,4 @@ python label_dir.py latteart/images_to_label/
 ## other notes
 name image
 docker tag 
-docker run -it -d -v ~/Projects/CharBucks/python_files/:/latteart/ -w /latteart rayid/tensorflow:image-class
-change container id in model.py
+docker run -it -d -v ~/Projects/CharBucks/python_files/:/latteart/ -w /latteart --name="latte" rayid/tensorflow:image-class

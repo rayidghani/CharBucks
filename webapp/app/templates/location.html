@@ -5,11 +5,12 @@
 {% block body %}
 
 <div class="jumbotron">
-<h4>Location to search:</h4>
+<h4>Location to search and businesses to get:</h4>
     <div class="row">
       <form method="post">
         <dl>
-          <dd><textarea rows="2" cols="60" name="posttext"></textarea></dd>
+          <dd><textarea rows="1" cols="30" name="posttext"></textarea></dd>
+          <dd><textarea rows="1" cols="5" name="limit"></textarea></dd>
           <dd><input type="submit" value="Submit" class="btn btn-primary btn-sm"/></dd>
         </dl>
       </form>
