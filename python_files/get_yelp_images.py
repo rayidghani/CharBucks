@@ -27,6 +27,8 @@ def main(argv):
     shutil.rmtree(image_download_path)
     # make the directory again
     os.makedirs(image_download_path)
+    log_file = open(image_download_path + 'log.txt', "w")
+    
     url = 'http://www.yelp.com/biz_photos/' + biz_name
 
     # todo: switch to this later on and test only grabbing images of drinks
@@ -39,9 +41,11 @@ def main(argv):
     logger.info('Found %s images', len(photos))
     if len(photos) > 0:
         for photo in photos:
-            urllib.urlretrieve(photo['src'], image_download_path + str(i) +".jpg")
+            urllib.urlretrieve(photo['src'], image_download_path + str(i) + ".jpg")
+            log_file.write(str(i) + ".jpg," + photo['src'] + "\n")
             i+=1
         logger.info('Finished getting %s images for %s', i, biz_name)
+        log_file.close()
         return i
     else:
         logger.error('No photos found', exc_info=True)

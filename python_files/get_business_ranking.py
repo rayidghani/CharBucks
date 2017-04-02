@@ -49,7 +49,7 @@ def main(argv):
             p = subprocess.Popen(cmd_to_call, shell=True, stdout = subprocess.PIPE)
             out,err = p.communicate()
             logger.info('Labeling images in directory %s with threshold %s', imgdir, THRESHOLD) 
-            cmd_to_call = "python label_dir.py '" + imgdir + "' " + str(THRESHOLD)
+            cmd_to_call = "python label_dir.py '" + imgdir + "' " + str(THRESHOLD) + " 0"
             logger.debug('calling %s', cmd_to_call)
             p = subprocess.Popen(cmd_to_call, shell=True, stdout = subprocess.PIPE)
             out,err = p.communicate()

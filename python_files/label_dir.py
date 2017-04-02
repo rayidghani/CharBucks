@@ -6,12 +6,16 @@ from os import listdir
 from os import mkdir
 from shutil import copyfile
 from os.path import isfile, join
+import glob
+import argparse
+
+
 
 def main(argv):
     """Function used to label all images in a directory
 
     Args:
-        argv[1]: path to inmage directory
+        argv[1]: path to image directory
         argv[2]:  threshold above which to classify as art
 
     Returns:
@@ -19,14 +23,22 @@ def main(argv):
 
     todo:
         make latteart directory a paramaeter
+        add argparse to pass arguments
     """
-  
+
     varPath = sys.argv[1]
     threshold = float(sys.argv[2])
+    verbose = int(sys.argv[3])
 
+    # testing new code
+    #imgFiles = [f for f in listdir(varPath) if isfile(join(varPath, f))]
+    imgFiles = glob.glob(varPath+'/*.jpg')
 
-    imgFiles = [f for f in listdir(varPath) if isfile(join(varPath, f))]
+    # load urls for each image
+    url_file = varPath + '/log.txt'
+    url_for_imgfile = dict(line.rstrip('\n').split(',') for line in open(url_file))
 
+    
     # Loads label file, strips off carriage return
     label_lines = [line.rstrip() for line 
                        in tf.gfile.GFile("latteart/retrained_labels.txt")]
@@ -41,33 +53,32 @@ def main(argv):
         # Feed the image_data as input to the graph and get first prediction
         softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')    
         img_count = 0
-        latte_count = 0
+        positive_count = 0
+        score_for_url = {}
         for imageFile in imgFiles:
-            image_data =  tf.gfile.FastGFile(varPath+"/"+imageFile, 'rb').read()       
+            # testing new code
+            #image_data =  tf.gfile.FastGFile(varPath+"/"+imageFile, 'rb').read()   
+            image_data =  tf.gfile.FastGFile(imageFile, 'rb').read()   
 
             #print (imageFile)
             predictions = sess.run(softmax_tensor, \
                      {'DecodeJpeg/contents:0': image_data})
             
-            # Sort to show labels of first prediction in order of confidence
             top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
             positive_score = round(predictions[0][1],2)
             if (positive_score > threshold):
-                latte_count+=1
-            #firstElt = top_k[0];
-            #human_string = label_lines[firstElt]
-            #score = predictions[0][firstElt]
-            #print('%s %s (score = %.5f)' % (firstElt, human_string, score))
-            #if (firstElt == 1 and score > 0.5) or (firstElt == 0 and score < 0.65):
-            #    latte_count +=1
-                #print imageFile
+                positive_count+=1
+                score_for_url[url_for_imgfile[os.path.basename(imageFile)]] = positive_score
+                if verbose:
+                    print('%s %s' % (url_for_imgfile[os.path.basename(imageFile)],positive_score))
+
             img_count += 1
 
-        #print('total images = %s' % (img_count))
-        #print('latte images = %s' % (latte_count))
-        print('%s %s' % (latte_count,img_count))
-        return latte_count, img_count
-
+        print('%s %s' % (positive_count,img_count))
+        if verbose:
+            return score_for_url, positive_count, img_count
+        else:
+            return positive_count, img_count
 
 if __name__ == "__main__":
    main(sys.argv[1:])
