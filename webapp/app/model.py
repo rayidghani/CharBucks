@@ -11,9 +11,9 @@ def get_score(image_url):
     out,err = p.communicate()
     return out
 
-def get_biz_score(bizid):
+def get_biz_score(bizid, verbose):
     if is_ascii(bizid):
-        classify_cmd = "'/latteart/get_rating.sh " + str(bizid) + "'"
+        classify_cmd = "'/latteart/get_rating.sh " + str(bizid) + " " + str(verbose) + "'"
         cmd = "docker exec " + container_id + " sh -c " + classify_cmd
         p = subprocess.Popen(cmd, shell=True, stdout = subprocess.PIPE)
         out,err = p.communicate()
@@ -21,8 +21,8 @@ def get_biz_score(bizid):
     else:
         return "bizid has non ascii characters"
 
-def get_biz_scores_from_location(location, limit):
-    classify_cmd = "'python /latteart/get_business_ranking.py " + str(location) + " " + str(limit) + "'"
+def get_biz_scores_from_location(location, limit, verbose):
+    classify_cmd = "'python /latteart/get_business_ranking.py " + str(location) + " " + str(limit) + " " + str(verbose) + "'"
     cmd = "docker exec " + container_id + " sh -c " + classify_cmd
     print cmd
     p = subprocess.Popen(cmd, shell=True, stdout = subprocess.PIPE)

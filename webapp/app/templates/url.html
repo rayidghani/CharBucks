@@ -15,7 +15,23 @@
       </form>
     </div>
 
-
-  <p class="lead">{{ results }}</p>
+{% if results %}
+ <p class="lead">
+<script type="text/javascript" src="{{ url_for('static', filename='raphael-2.1.4.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='justgage.js') }}"></script>
+<div id="gauge" class="200x160px"></div>
+<script>
+  var g = new JustGage({
+    id: "gauge",
+    value: {{results}},
+    min: 0,
+    max: 1,
+    humanFriendlyDecimal: 2,
+    decimals: 2,
+    title: "Art %"
+  });
+</script>
+{% endif %}
+{{ results }}
 </div>
 {% endblock %}

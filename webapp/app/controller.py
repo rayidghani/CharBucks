@@ -1,5 +1,6 @@
 from flask import render_template, request, url_for, jsonify
 from app import app, model
+from flask import Flask, request
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
@@ -19,8 +20,12 @@ def classify_image_url():
 def classify_bizid():
     if request.method == 'POST':
         posttext = request.form['posttext']
+        if request.form.get("verbose"):
+            verbose = 1
+        else:
+            verbose = 0
         if posttext is not "":
-            result = model.get_biz_score(posttext)
+            result = model.get_biz_score(posttext,verbose)
             print(result)
             return render_template("bizid.html", results=result)
     return render_template("bizid.html")
@@ -29,9 +34,13 @@ def classify_bizid():
 def classify_location():
     if request.method == 'POST':
         posttext = request.form['posttext']
+        if request.form.get("verbose"):
+            verbose = 1
+        else:
+            verbose = 0
         limit = request.form['limit']
         if posttext is not "":
-            result = model.get_biz_scores_from_location(posttext, limit)
+            result = model.get_biz_scores_from_location(posttext, limit, verbose)
             print(result)
             return render_template("location.html", results=result)
     return render_template("location.html")
