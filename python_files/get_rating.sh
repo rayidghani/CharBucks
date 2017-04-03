@@ -1,7 +1,11 @@
 #!/bin/bash
-if [ $# -ne 2 ]; then
-    echo $0: usage: myscript name
+if [ $# -lt 1 ]; then
+    echo $0: usage: myscript business_name verbose 
     exit 1
+fi
+
+if [ $# -lt 2 ]; then
+    verbose=0 
 fi
 
 bizname=$1
