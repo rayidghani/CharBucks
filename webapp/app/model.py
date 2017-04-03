@@ -17,6 +17,7 @@ def get_biz_score(bizid, verbose):
         cmd = "docker exec " + container_id + " sh -c " + classify_cmd
         p = subprocess.Popen(cmd, shell=True, stdout = subprocess.PIPE)
         out,err = p.communicate()
+        print out
         return out
     else:
         return "bizid has non ascii characters"
