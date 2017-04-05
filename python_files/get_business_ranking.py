@@ -34,7 +34,7 @@ def main(argv):
 
     logger.info('Starting to get %s businesses for %s', num_of_businesses_to_get, location)
     all_bizids = get_yelp_businesses.get_business_ids_from_api(location, num_of_businesses_to_get)
-    # remove buzinesses with non ascii characters
+    # remove businesses with non ascii characters
     bizids =  [b for b in all_bizids if is_ascii(b)]
     logger.info('Got %s businesses for %s', len(bizids), location)
     
@@ -48,11 +48,13 @@ def main(argv):
             logger.debug('calling %s', cmd_to_call)
             p = subprocess.Popen(cmd_to_call, shell=True, stdout = subprocess.PIPE)
             out,err = p.communicate()
+
             logger.info('Labeling images in directory %s with threshold %s', imgdir, THRESHOLD) 
             cmd_to_call = "python label_dir.py '" + imgdir + "' " + str(THRESHOLD) + " 0"
             logger.debug('calling %s', cmd_to_call)
             p = subprocess.Popen(cmd_to_call, shell=True, stdout = subprocess.PIPE)
             out,err = p.communicate()
+            
             bizurl = 'http://www.yelp.com/biz/' + biz
             scores[bizurl]=out
             logger.info('Scoring %s with score %s', biz, out)
