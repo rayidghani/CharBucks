@@ -55,6 +55,7 @@ def main(argv):
         img_count = 0
         positive_count = 0
         score_for_url = {}
+        output_list= []
         for imageFile in imgFiles:
             # testing new code
             #image_data =  tf.gfile.FastGFile(varPath+"/"+imageFile, 'rb').read()   
@@ -70,15 +71,23 @@ def main(argv):
                 positive_count+=1
                 score_for_url[url_for_imgfile[os.path.basename(imageFile)]] = positive_score
                 if verbose:
-                    print('%s %s' % (url_for_imgfile[os.path.basename(imageFile)],positive_score))
+                    output_list.append ('%s*%s' % (url_for_imgfile[os.path.basename(imageFile)],positive_score))
+
+
 
             img_count += 1
 
-        print('%s %s' % (positive_count,img_count))
         if verbose:
+            #return_string = '[\'fsfsdfdsd\',\'dfgdgdfg\']' 
+            return_string = "^".join(output_list)
+            #return_string = "[" + return_string + "]"
+            #return_string = "[[" + return_string + "]," + "[" + str(positive_count) + "," + str(img_count) + "]]"
+            print return_string
             return score_for_url, positive_count, img_count
         else:
+            print('%s %s' % (positive_count,img_count))
             return positive_count, img_count
+            
 
 if __name__ == "__main__":
    main(sys.argv[1:])
