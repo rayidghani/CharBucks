@@ -18,12 +18,14 @@
 
 
 <p class="lead">
-
+{% if results %}
 {% set list1 = results.split('^') %}
 {% for result in list1 %}
  {% set list2 = result.split('*') %}
 <p><img src="{{list2[0]}}"> {{list2[1]}} 
 {% endfor %}
+{% endif%}	
+
 
 </p>
 </div>
