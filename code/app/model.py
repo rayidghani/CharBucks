@@ -1,6 +1,6 @@
 import subprocess
 container_id = 'latte'
-curpath = 'python_files/'
+curpath = 'scripts/'
 docker = 0
 
 def is_ascii(s):

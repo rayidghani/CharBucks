@@ -1,2 +1,2 @@
-curl $1 > latteart/images_to_label/image.jpg
-python python_files/label_image.py latteart/images_to_label/image.jpg
+curl $1 > latteart_model/images_to_label/image.jpg
+python scripts/label_image.py latteart_model/images_to_label/image.jpg
