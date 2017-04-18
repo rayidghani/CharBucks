@@ -13,6 +13,6 @@ verbose=$2
 imgdir='latteart/images_to_label/'
 threshold='0.6'
 
-python get_yelp_images.py $bizname $imgdir
-python label_dir.py $imgdir $threshold $verbose
+python python_files/get_yelp_images.py $bizname $imgdir
+python python_files/label_dir.py $imgdir $threshold $verbose
 
