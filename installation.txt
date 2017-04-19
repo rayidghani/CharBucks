@@ -1,10 +1,6 @@
-    5  sudo yum install git
-    6  git clone https://github.com/rayidghani/CharBucks.git
-   14  sudo yum install docker
-   17  sudo service docker start
-   18  sudo usermod -a -G docker ec2-user
-   22  docker load --input ~/rayid-tensorflow-image.tar
-   28  docker tag 54707016a130 rayid/tensorflow:image-class
-   35  sudo easy_install flask
-   36  ./start.sh
-   44  flask run --host=0.0.0.0
+sudo yum install docker
+sudo service docker start
+docker load --input ~/rayid-tensorflow-image.tar
+docker tag 54707016a130 rayid/tensorflow:image-class
+./start.sh
+flask run --host=0.0.0.0
