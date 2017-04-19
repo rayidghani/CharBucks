@@ -16,7 +16,9 @@ def main(argv):
 
     Args:
         argv[1]: path to image directory
-        argv[2]:  threshold above which to classify as art
+        argv[2]: model dir
+        argv[3]:  threshold above which to classify as art
+        argv[4]:  verbose
 
     Returns:
         Returns two numbers:  # of latte art images, total # of images
@@ -27,8 +29,9 @@ def main(argv):
     """
 
     varPath = sys.argv[1]
-    threshold = float(sys.argv[2])
-    verbose = int(sys.argv[3])
+    model_dir = sys.argv[2]
+    threshold = float(sys.argv[3])
+    verbose = int(sys.argv[4])
 
     # testing new code
     #imgFiles = [f for f in listdir(varPath) if isfile(join(varPath, f))]
@@ -41,10 +44,10 @@ def main(argv):
     
     # Loads label file, strips off carriage return
     label_lines = [line.rstrip() for line 
-                       in tf.gfile.GFile("latteart_model/retrained_labels.txt")]
+                       in tf.gfile.GFile(model_dir + "/retrained_labels.txt")]
 
     # Unpersists graph from file
-    with tf.gfile.FastGFile("latteart_model/retrained_graph.pb", 'rb') as f:
+    with tf.gfile.FastGFile(model_dir + "/retrained_graph.pb", 'rb') as f:
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
         _ = tf.import_graph_def(graph_def, name='')

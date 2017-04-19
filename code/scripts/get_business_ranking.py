@@ -25,7 +25,6 @@ def main(argv):
     Returns:
         Returns a string with scores for each location and the url
     """
-    
     location = sys.argv[1]
     num_of_businesses_to_get = sys.argv[2]
 
@@ -37,24 +36,25 @@ def main(argv):
     # remove businesses with non ascii characters
     bizids =  [b for b in all_bizids if is_ascii(b)]
     logger.info('Got %s businesses for %s', len(bizids), location)
-    
+
     if len(bizids) > 0:
-        imgdir ='latteart/images_to_label/'
+        imgdir ='latteart_model/images_to_label/'
+        model_dir  = 'latteart_model'
         scores = {}
         for biz in bizids:
-            logger.info('Processing %s', biz)  
-            logger.info('Getting images for %s and putting them in %s', biz, imgdir) 
-            cmd_to_call = "python get_yelp_images.py '" + biz + "' '" + imgdir + "'"
+            logger.info('Processing %s', biz)
+            logger.info('Getting images for %s and putting them in %s', biz, imgdir)
+            cmd_to_call = "python scripts/get_yelp_images.py '" + biz + "' '" + imgdir + "'"
             logger.debug('calling %s', cmd_to_call)
             p = subprocess.Popen(cmd_to_call, shell=True, stdout = subprocess.PIPE)
             out,err = p.communicate()
 
-            logger.info('Labeling images in directory %s with threshold %s', imgdir, THRESHOLD) 
-            cmd_to_call = "python label_dir.py '" + imgdir + "' " + str(THRESHOLD) + " 0"
+            logger.info('Labeling images in directory %s with threshold %s', imgdir, THRESHOLD)
+            cmd_to_call = "python scripts/label_dir.py '" + imgdir + "' '" + model_dir + "' " + str(THRESHOLD) + " 0"
             logger.debug('calling %s', cmd_to_call)
             p = subprocess.Popen(cmd_to_call, shell=True, stdout = subprocess.PIPE)
             out,err = p.communicate()
-            
+
             bizurl = 'http://www.yelp.com/biz/' + biz
             scores[bizurl]=out
             logger.info('Scoring %s with score %s', biz, out)
@@ -69,5 +69,3 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
-

@@ -36,7 +36,7 @@ def get_biz_scores_from_location(location, limit, verbose):
         cmd = "docker exec " + container_id + " sh -c " + classify_cmd
         print cmd
     else:
-        cmd = "python get_business_ranking.py " + str(location) + " " + str(limit) + " " + str(verbose)
+        cmd = "python " + curpath + "/get_business_ranking.py " + str(location) + " " + str(limit) + " " + str(verbose)
     p = subprocess.Popen(cmd, shell=True, stdout = subprocess.PIPE)
     out,err = p.communicate()
     return out
