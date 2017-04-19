@@ -1,6 +1,23 @@
 # Latte Art Classifier
 
+Uses tensorflow to classify an image into latte art or not.
+
+The web app can:
+1. Label an image 
+2. Label a yelp business
+3. Give top k latte art coffeeshops given a location (zipcode, lat long, city, etc.)
+
 ## Usage Instructions:
+
+### Using locally installed docker
+
+1. create virtualenv (virtualenv charapp)
+2. if it's already created, source charapp/bin/activate
+3. Clone this repo
+4. pip install -r requirements.txt (will install tensorflow locally)
+5. Call various scripts locally or use the flask web app (gunicorn -c config.py --bind 0.0.0.0:5000 wsgi)
+
+### Using tensorflow docker container
 
 1. Install tensorflow (in a docker container) - 
 2. Clone this repo
