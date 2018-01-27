@@ -1,6 +1,0 @@
-sudo yum install docker
-sudo service docker start
-docker load --input ~/rayid-tensorflow-image.tar
-docker tag 54707016a130 rayid/tensorflow:image-class
-./start.sh
-flask run --host=0.0.0.0
