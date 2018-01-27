@@ -9,8 +9,6 @@ The web app can:
 
 ## Usage Instructions:
 
-### Using locally installed docker
-
 1. create virtualenv (virtualenv charapp)
 2. if it's already created, source charapp/bin/activate
 3. Clone this repo
