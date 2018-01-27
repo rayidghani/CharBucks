@@ -23,7 +23,7 @@
 {% if scores %}
 
 {% for item in scores|dictsort(false, 'value')|reverse %}
-<a href="{{ item[0] }}">{{ item[0] }}</a> {{ scores[item[0]] }}<br>
+<a href="{{ item[0] }}">{{ item[0] }}</a> {{ scores[item[0]] }} (out of {{ counts[item[0]] }})<br>
 
 
 {% endfor %}

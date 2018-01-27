@@ -39,6 +39,6 @@ def classify_location():
             verbose = 0
         limit = request.form['limit']
         if posttext is not "":
-            scores = model.get_biz_scores_from_location(posttext, limit, verbose)
-            return render_template("location.html", scores=scores)
+            scores, counts = model.get_biz_scores_from_location(posttext, limit, verbose)
+            return render_template("location.html", scores=scores, counts=counts)
     return render_template("location.html")

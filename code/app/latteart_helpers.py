@@ -154,6 +154,7 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
 
     if len(bizids) > 0:
         positive_counts = {}
+        total_counts = {}
         for biz in bizids:
             logger.info('Processing %s', biz)
             bizurl = 'http://www.yelp.com/biz/' + biz
@@ -168,11 +169,12 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
                 positive_count = 0
             
             positive_counts[bizurl]= positive_count
+            total_counts[bizurl]= num_images
             logger.info('%s has %s//%s arts', biz, positive_count, img_count)
             wait_time = random.randint(1, 5)
             logger.info('waiting %s seconds to process next business...',wait_time)
             time.sleep(wait_time)
-        return positive_counts
+        return positive_counts, total_counts
     else:
         logger.error('No businesses returned by get_business_ids_from_api', exc_info=True)
         return 0;

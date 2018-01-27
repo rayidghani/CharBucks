@@ -8,13 +8,9 @@ import requests
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-container_id = 'latte'
-curpath = 'scripts/'
 model_dir = 'latteart_model_files/'
 imgdir ='images/'
 threshold = 0.6
-docker = 0
 
 def is_ascii(s):
     return all(ord(c) < 128 for c in s)
