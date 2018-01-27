@@ -18,6 +18,20 @@
     </div>
 
 
-  <p class="lead">{{ results }}</p>
+  <p class="lead">
+
+{% if scores %}
+
+{% for item in scores|dictsort(false, 'value')|reverse %}
+<a href="{{ item[0] }}">{{ item[0] }}</a> {{ scores[item[0]] }}<br>
+
+
+{% endfor %}
+{% endif %}
+
+
+</p>
 </div>
 {% endblock %}
+
+

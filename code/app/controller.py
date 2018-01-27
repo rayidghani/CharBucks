@@ -11,7 +11,7 @@ def classify_image_url():
     if request.method == 'POST':
         posttext = request.form['posttext']
         if posttext is not "":
-            result = model.get_score(posttext)
+            result = model.score_imageurl(posttext)
             print(result)
             return render_template("url.html", results=result)
     return render_template("url.html")
@@ -25,9 +25,8 @@ def classify_bizid():
         else:
             verbose = 0
         if posttext is not "":
-            result = model.get_biz_score(posttext,verbose)
-            print(result)
-            return render_template("bizid.html", results=result)
+            positive_count, img_count, score_for_url = model.score_yelpbiz(posttext,verbose)
+            return render_template("bizid.html", positive_count=positive_count, img_count=img_count, score_for_url=score_for_url)
     return render_template("bizid.html")
 
 @app.route('/location', methods=['POST', 'GET'])
@@ -40,7 +39,6 @@ def classify_location():
             verbose = 0
         limit = request.form['limit']
         if posttext is not "":
-            result = model.get_biz_scores_from_location(posttext, limit, verbose)
-            print(result)
-            return render_template("location.html", results=result)
+            scores = model.get_biz_scores_from_location(posttext, limit, verbose)
+            return render_template("location.html", scores=scores)
     return render_template("location.html")

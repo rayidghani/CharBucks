@@ -1,42 +1,46 @@
 import subprocess
+import urllib
+import yelp_helper
+import latteart_helpers
+import logging
+import requests
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 container_id = 'latte'
 curpath = 'scripts/'
+model_dir = 'latteart_model_files/'
+imgdir ='images/'
+threshold = 0.6
 docker = 0
 
 def is_ascii(s):
     return all(ord(c) < 128 for c in s)
 
-def get_score(image_url):
-    if (docker):
-        classify_cmd = "'/latteart/label_web_image.sh " + str(image_url) + "'"
-        cmd = "docker exec " + container_id + " sh -c " + classify_cmd
-    else:
-        cmd = curpath + "label_web_image.sh " + str(image_url)
-    p = subprocess.Popen(cmd, shell=True, stdout = subprocess.PIPE)
-    out,err = p.communicate()
-    return out
+def score_imageurl(image_url):
+    # download image
+    image_name = imgdir + "image.jpg"
+    logger.info('Starting to get %s', image_url)
+    yelp_helper.get_image_from_url(image_url, image_name)
+    # score image
+    positive_score = latteart_helpers.label_image(image_name, model_dir)
+    return positive_score
 
-def get_biz_score(bizid, verbose):
+def score_yelpbiz(bizid, verbose):
     if is_ascii(bizid):
-        if (docker):
-            classify_cmd = "'/latteart/get_rating.sh " + str(bizid) + " " + str(verbose) + "'"
-            cmd = "docker exec " + container_id + " sh -c " + classify_cmd
+        num_images = yelp_helper.get_business_images(bizid, imgdir)
+        if num_images:
+            score_for_url, positive_count, img_count = latteart_helpers.label_directory(imgdir, model_dir, threshold)
         else:
-            cmd = curpath + "get_rating.sh " + str(bizid) + " " + str(verbose)
-        p = subprocess.Popen(cmd, shell=True, stdout = subprocess.PIPE)
-        out,err = p.communicate()
-        print out
-        return out
+            positive_count = 0
+        return positive_count, img_count, score_for_url
     else:
-        return "bizid has non ascii characters"
+        logger.error('bizid %s has non ascii characters', bizid)
+        return 0
 
 def get_biz_scores_from_location(location, limit, verbose):
-    if (docker):
-        classify_cmd = "'python /latteart/get_business_ranking.py " + str(location) + " " + str(limit) + " " + str(verbose) + "'"
-        cmd = "docker exec " + container_id + " sh -c " + classify_cmd
-        print cmd
-    else:
-        cmd = "python " + curpath + "/get_business_ranking.py " + str(location) + " " + str(limit) + " " + str(verbose)
-    p = subprocess.Popen(cmd, shell=True, stdout = subprocess.PIPE)
-    out,err = p.communicate()
-    return out
+    return latteart_helpers.rank_bizs_in_location(location, limit, model_dir, imgdir, threshold)
+
+

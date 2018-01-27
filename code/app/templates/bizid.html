@@ -18,14 +18,15 @@
 
 
 <p class="lead">
-{% if results %}
-{% set list1 = results.split('^') %}
-{% for result in list1 %}
- {% set list2 = result.split('*') %}
-<p><img src="{{list2[0]}}"> {{list2[1]}} 
-{% endfor %}
-{% endif%}	
+{% if score_for_url %}
+{{positive_count}} out of {{img_count}}<br>
 
+{% for url, score in score_for_url.iteritems() %}
+
+<img src="{{ url }}"> {{ score }}<br>
+
+{% endfor %}
+{% endif %}
 
 </p>
 </div>
