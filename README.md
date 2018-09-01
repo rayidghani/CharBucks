@@ -9,7 +9,8 @@ The web app can:
 
 ## Usage Instructions:
 
-1. create virtualenv (virtualenv charapp)
+Note: Use python 3.6 and not 3.7 (since tensorflow hasn't been updated to support 3.7 yet)
+1. create virtualenv (virtualenv -p python3.6 charapp)
 2. if it's already created, source charapp/bin/activate
 3. Clone this repo
 4. pip install -r requirements.txt (will install tensorflow locally)
