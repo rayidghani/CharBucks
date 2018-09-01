@@ -1,7 +1,7 @@
 import subprocess
 import urllib
-import yelp_helper
-import latteart_helpers
+from . import yelp_helper
+from . import latteart_helpers
 import logging
 import requests
 

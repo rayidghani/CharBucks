@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import tensorflow as tf
 import sys
 import os
@@ -13,8 +14,8 @@ import subprocess
 import time
 import random
 import urllib
-import yelp_helper
-import creds
+from . import yelp_helper
+from . import creds
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

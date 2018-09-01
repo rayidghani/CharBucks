@@ -17,21 +17,20 @@ Sample usage of the program:
 `python sample.py --location="San Francisco, CA"`
 """
 from __future__ import print_function
+from __future__ import absolute_import
 
 import argparse
 import json
 import pprint
 import requests
 import sys
-import urllib
-import creds
+from urllib.request import urlopen
 from bs4 import BeautifulSoup
-from urllib import urlopen
-import urllib
 import os
 import shutil
 import sys
 import logging
+from . import creds
 
 # This client code can run on Python 2.x or 3.x.  Your imports can be
 # simpler if you only need one of those.
@@ -65,7 +64,7 @@ BUSINESS_PATH = '/v3/businesses/'  # Business ID will come after slash.
 def get_image_from_url(image_url, image_name):
 
     # download image from image_url
-    r = requests.get(image_url)
+    r = requests.get(image_url, verify=False)
     #image_name = "image_to_classify__" + str(random.randint(1,10000)) + ".jpg"
     image_file = open(image_name, 'wb')
     for chunk in r.iter_content(100000):
@@ -94,7 +93,7 @@ def request(host, path, api_key, url_params=None):
 
     print(u'Querying {0} ...'.format(url))
 
-    response = requests.request('GET', url, headers=headers, params=url_params)
+    response = requests.request('GET', url, headers=headers, params=url_params, verify=False)
 
     return response.json()
 
@@ -200,8 +199,8 @@ def get_business_images(biz_name,image_download_path):
     # todo: switch to this later on and test only grabbing images of drinks
     urlfordrinks =   'http://www.yelp.com/biz_photos/' + biz_name + '?tab=drink'
 
-    page = urlopen(url)
-    soup = BeautifulSoup(page.read(), 'html.parser')
+    page = requests.get(url, verify=False)
+    soup = BeautifulSoup(page.text, 'html.parser')
     photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
     i=0
     logger.info('Found %s images', len(photos))
