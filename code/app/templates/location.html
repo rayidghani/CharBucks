@@ -3,19 +3,18 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block body %}
-
+<p>
 <div class="jumbotron">
-<h4>Location to search and businesses to get:</h4>
-    <div class="row">
+<h3>Art Finder</h4>
+<p><p>
       <form method="post">
         <dl>
-          <dd><textarea rows="1" cols="30" name="posttext"></textarea></dd>
-          <dd><textarea rows="1" cols="5" name="limit"></textarea></dd>
-          <dd><input type="checkbox" name="verbose" value="1" checked="checked"> Verbose<br>
-          <dd><input type="submit" value="Submit" class="btn btn-primary btn-sm"/></dd>
+          <dd>Location: <textarea rows="1" cols="30" name="posttext"></textarea></dd><p>
+          <dd>Number of results to return: <textarea rows="1" cols="5" name="limit"></textarea></dd><p>
+          <dd><input type="checkbox" name="verbose" value="1" checked="checked"> Verbose<br><p>
+          <dd><input type="submit" value="Submit" class="btn btn-primary btn-md"/></dd>
         </dl>
       </form>
-    </div>
 
 
   <p class="lead">
@@ -23,7 +22,7 @@
 {% if scores %}
 
 {% for item in scores|dictsort(false, 'value')|reverse %}
-<a href="{{ item[0] }}">{{ item[0] }}</a> {{ scores[item[0]] }} (out of {{ counts[item[0]] }})<br>
+<a href="{{ item[0] }}">{{ names[item[0]] }}</a> {{ scores[item[0]] }} (out of {{ counts[item[0]] }})<br>
 
 
 {% endfor %}

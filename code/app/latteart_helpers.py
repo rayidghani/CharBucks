@@ -14,10 +14,32 @@ import time
 import random
 import urllib
 import yelp_helper
+import creds
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+API_KEY = creds.login['api_key']
+
+
+# top two functions not being used currenrly
+def load_graph(model_file):
+    graph = tf.Graph()
+    graph_def = tf.GraphDef()
+
+    with open(model_file, "rb") as f:
+        graph_def.ParseFromString(f.read())
+    with graph.as_default():
+        tf.import_graph_def(graph_def)
+
+    return graph
+
+def load_labels(label_file):
+    label = []
+    proto_as_ascii_lines = tf.gfile.GFile(label_file).readlines()
+    for l in proto_as_ascii_lines:
+        label.append(l.rstrip())
+    return label
 
 def label_image(image_path, model_dir):
     """Function used to label an image
@@ -155,12 +177,15 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
     if len(bizids) > 0:
         positive_counts = {}
         total_counts = {}
+        biz_names = {}
         for biz in bizids:
+            bizresponse = yelp_helper.get_business(API_KEY, biz)
+            bizname = bizresponse['name']
             logger.info('Processing %s', biz)
             bizurl = 'http://www.yelp.com/biz/' + biz
             num_images = 0
             positive_count = 0
-            logger.info('Getting images for %s and putting them in %s', biz, tmpimgdir)
+            logger.info('Getting images for id %s name %s and putting them in %s', biz, bizname, tmpimgdir)
             num_images = yelp_helper.get_business_images(biz, tmpimgdir)
             logger.info('Labeling %s images in directory %s with threshold %s', num_images, tmpimgdir, threshold)
             if num_images:
@@ -170,11 +195,12 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
             
             positive_counts[bizurl]= positive_count
             total_counts[bizurl]= num_images
-            logger.info('%s has %s//%s arts', biz, positive_count, img_count)
+            biz_names[bizurl] = bizname
+            logger.info('%s has %s//%s arts', bizname, positive_count, img_count)
             wait_time = random.randint(1, 5)
             logger.info('waiting %s seconds to process next business...',wait_time)
             time.sleep(wait_time)
-        return positive_counts, total_counts
+        return positive_counts, total_counts, biz_names
     else:
         logger.error('No businesses returned by get_business_ids_from_api', exc_info=True)
         return 0;

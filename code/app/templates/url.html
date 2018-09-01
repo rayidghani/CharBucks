@@ -3,17 +3,15 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block body %}
-
+<p>
 <div class="jumbotron">
 <h4>Image URL to classify:</h4>
-    <div class="row">
       <form method="post">
         <dl>
-          <dd><textarea rows="2" cols="60" name="posttext"></textarea></dd>
-          <dd><input type="submit" value="Submit" class="btn btn-primary btn-sm"/></dd>
+          <dd><textarea rows="1" cols="80" name="posttext"></textarea></dd>
+          <dd><input type="submit" value="Score" class="btn btn-primary btn-md"/></dd>
         </dl>
       </form>
-    </div>
 
 {% if results %}
  <p class="lead">

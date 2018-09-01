@@ -13,7 +13,7 @@ The web app can:
 2. if it's already created, source charapp/bin/activate
 3. Clone this repo
 4. pip install -r requirements.txt (will install tensorflow locally)
-5. Call various scripts locally or use the flask web app (gunicorn -c config.py --bind 0.0.0.0:5000 wsgi)
+5. Call various scripts locally or use the flask web app (python run.py)
 
 ### To train or retrain:
 
