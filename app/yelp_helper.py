@@ -20,7 +20,7 @@ import sys
 import logging
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
-from . import creds
+# from . import creds
 
 # This client code can run on Python 2.x or 3.x.  Your imports can be
 # simpler if you only need one of those.
@@ -43,9 +43,10 @@ logger = logging.getLogger(__name__)
 # https://www.yelp.com/developers/v3/manage_app
 
 # client_id and client_secret are now deprecated
-CLIENT_ID = creds.login['client_id']
-CLIENT_SECRET = creds.login['app_secret']
-API_KEY = creds.login['api_key']
+#CLIENT_ID = creds.login['client_id']
+#CLIENT_SECRET = creds.login['app_secret']
+#API_KEY = creds.login['api_key']
+API_KEY = os.environ.get('API_KEY')
 
 # API constants, you shouldn't have to change these.
 API_HOST = 'https://api.yelp.com'

@@ -15,13 +15,13 @@ import time
 import random
 import urllib
 from . import yelp_helper
-from . import creds
+# from . import creds
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-API_KEY = creds.login['api_key']
-
+#API_KEY = creds.login['api_key']
+API_KEY = os.environ.get('API_KEY')
 
 # top two functions not being used currenrly
 def load_graph(model_file):
@@ -174,7 +174,7 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
     
     # remove businesses with non ascii characters
     clean_bizids =  [b for b in all_bizids if is_ascii(b)]
-    logger.info('Got %s businesses in %s', len(bizids), location)
+    logger.info('Got %s businesses in %s', len(clean_bizids), location)
 
     if len(clean_bizids) > 0:
         positive_counts = {}  #store number of positive images for the business
