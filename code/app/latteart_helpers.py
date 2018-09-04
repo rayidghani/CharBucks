@@ -156,33 +156,34 @@ def is_ascii(s):
     return all(ord(c) < 128 for c in s)
 
 def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgdir, threshold):
-    """Function used to get scores for n shops in a location
+    """Function used to get scores for num_of_businesses_to_get businesses in a location
 
     Args:
         location: location (can be city, zip, lat long string)
         num_of_businesses_to_get: number of business to get and score
 
     Returns:
-        Returns a string with scores for each location and the url
+        Returns three arrays - positive_counts, total_counts, biz_names
     """
 
     if location is None:
         location = "chicago"
 
-    logger.info('Starting to get %s businesses for %s', num_of_businesses_to_get, location)
+    logger.info('Starting to get %s businesses in %s', num_of_businesses_to_get, location)
     all_bizids = yelp_helper.get_business_ids_from_api(location, num_of_businesses_to_get)
+    
     # remove businesses with non ascii characters
-    bizids =  [b for b in all_bizids if is_ascii(b)]
-    logger.info('Got %s businesses for %s', len(bizids), location)
+    clean_bizids =  [b for b in all_bizids if is_ascii(b)]
+    logger.info('Got %s businesses in %s', len(bizids), location)
 
-    if len(bizids) > 0:
-        positive_counts = {}
-        total_counts = {}
-        biz_names = {}
-        for biz in bizids:
+    if len(clean_bizids) > 0:
+        positive_counts = {}  #store number of positive images for the business
+        total_counts = {} # store total number of imageas retrieved for the business
+        biz_names = {} # store the business name
+        for biz in clean_bizids:
             bizresponse = yelp_helper.get_business(API_KEY, biz)
             bizname = bizresponse['name']
-            logger.info('Processing %s', biz)
+            logger.info('Processing %s', bizname)
             bizurl = 'http://www.yelp.com/biz/' + biz
             num_images = 0
             positive_count = 0
