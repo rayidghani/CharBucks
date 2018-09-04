@@ -2,20 +2,10 @@
 """
 Adapted from Yelp Fusion API code sample.
 
-This program demonstrates the capability of the Yelp Fusion API
-by using the Search API to query for businesses by a search term and location,
-and the Business API to query additional information about the top result
-from the search query.
-
 Please refer to http://www.yelp.com/developers/v3/documentation for the API
 documentation.
-
-This program requires the Python requests library, which you can install via:
-`pip install -r requirements.txt`.
-
-Sample usage of the program:
-`python sample.py --location="San Francisco, CA"`
 """
+
 from __future__ import print_function
 from __future__ import absolute_import
 
@@ -24,12 +14,12 @@ import json
 import pprint
 import requests
 import sys
-from urllib.request import urlopen
-from bs4 import BeautifulSoup
 import os
 import shutil
 import sys
 import logging
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
 from . import creds
 
 # This client code can run on Python 2.x or 3.x.  Your imports can be
@@ -52,6 +42,7 @@ logger = logging.getLogger(__name__)
 # You can find them on
 # https://www.yelp.com/developers/v3/manage_app
 
+# client_id and client_secret are now deprecated
 CLIENT_ID = creds.login['client_id']
 CLIENT_SECRET = creds.login['app_secret']
 API_KEY = creds.login['api_key']
@@ -149,7 +140,6 @@ def get_business(api_key, business_id):
         dict: The JSON response from the request.
     """
     business_path = BUSINESS_PATH + business_id
-
     return request(API_HOST, business_path, api_key)
 
 def get_business_ids_from_api(location, num_of_businesses_to_get):
