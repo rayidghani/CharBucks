@@ -7,6 +7,9 @@ The web app can:
 2. Label a yelp business
 3. Give top k latte art coffeeshops given a location (zipcode, lat long, city, etc.)
 
+## Set up for deploying to heroku
+Currently deployed at https://charbucks.herokuapp.com/
+
 ## Usage Instructions:
 
 Note: Use python 3.6 and not 3.7 (since tensorflow hasn't been updated to support 3.7 yet)
