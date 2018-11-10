@@ -157,7 +157,7 @@ def get_business_ids_from_api(location, num_of_businesses_to_get):
     businesses = response.get('businesses')
 
     if not businesses:
-        print(u'No businesses for {0} in {1} found.'.format(term, location))
+        print(u'No businesses in {0} found.'.format(location))
         return
 
     num_of_businesses = len(businesses)
