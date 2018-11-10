@@ -13,7 +13,7 @@ import logging
 import subprocess
 import time
 import random
-import urllib
+import urllib3
 from . import yelp_helper
 # from . import creds
 
