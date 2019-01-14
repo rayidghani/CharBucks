@@ -21,7 +21,7 @@
 {% if score_for_url %}
 {{positive_count}} out of {{img_count}}<br>
 
-{% for url, score in score_for_url.iteritems() %}
+{% for url, score in score_for_url.items() %}
 
 <img src="{{ url }}"> {{ score }}<br>
 
