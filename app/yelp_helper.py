@@ -20,7 +20,9 @@ import sys
 import logging
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
-# from . import creds
+
+
+from . import creds
 
 # This client code can run on Python 2.x or 3.x.  Your imports can be
 # simpler if you only need one of those.
@@ -35,6 +37,9 @@ except ImportError:
     from urllib import quote
     from urllib import urlencode
 
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -45,13 +50,18 @@ logger = logging.getLogger(__name__)
 # client_id and client_secret are now deprecated
 #CLIENT_ID = creds.login['client_id']
 #CLIENT_SECRET = creds.login['app_secret']
-#API_KEY = creds.login['api_key']
-API_KEY = os.environ.get('API_KEY')
+API_KEY = creds.login['api_key']
+#API_KEY = os.environ.get('API_KEY')
+if API_KEY:
+    logger.debug('Loaded Yelp API Key %s', API_KEY)
+else:
+    logger.error('No environment variable set for Yelp API key - set API_KEY=XXX')
 
 # API constants, you shouldn't have to change these.
 API_HOST = 'https://api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH = '/v3/businesses/'  # Business ID will come after slash.
+
 
 def get_image_from_url(image_url, image_name):
 
@@ -83,10 +93,10 @@ def request(host, path, api_key, url_params=None):
         'Authorization': 'Bearer %s' % api_key,
     }
 
-    print(u'Querying {0} ...'.format(url))
+    logger.info('Querying %s with headers %s and url params %s ...', url, headers, url_params)
 
     response = requests.request('GET', url, headers=headers, params=url_params, verify=False)
-
+    logger.debug('querying returned json %s',response.json())
     return response.json()
 
 
@@ -118,17 +128,11 @@ def query_api(term, location):
     """
     response = search(API_KEY, term, location)
     businesses = response.get('businesses')
-
-    if not businesses:
-        print(u'No businesses for {0} in {1} found.'.format(term, location))
-        return
-
     business_id = businesses[0]['id']
     print(u'{0} businesses found, querying business info ' \
         'for the top result "{1}" ...'.format(
             len(businesses), business_id))
     response = get_business(API_KEY, business_id)
-
     print(u'Result for business "{0}" found:'.format(business_id))
     pprint.pprint(response, indent=2)
 
@@ -141,7 +145,7 @@ def get_business(api_key, business_id):
         dict: The JSON response from the request.
     """
     business_path = BUSINESS_PATH + business_id
-    return request(API_HOST, business_path, api_key)
+    return request(API_HOST, business_path, API_KEY)
 
 def get_business_ids_from_api(location, num_of_businesses_to_get):
     """Queries the API by the input values from the user.
@@ -153,19 +157,16 @@ def get_business_ids_from_api(location, num_of_businesses_to_get):
 
     logger.info('Getting search results from api')
     response = search(API_KEY, location, num_of_businesses_to_get)
-
     businesses = response.get('businesses')
-
     if not businesses:
-        print(u'No businesses in {0} found.'.format(location))
-        return
-
-    num_of_businesses = len(businesses)
-    list_to_return = []
-    for business in businesses:
-        list_to_return.append(business['id'])
- 
-    return list_to_return
+        logger.error('No businesses found in %s', location)
+        return 0
+    else:
+        num_of_businesses = len(businesses)
+        list_to_return = []
+        for business in businesses:
+            list_to_return.append(business['id'])
+        return list_to_return
 
 def get_business_images(biz_name,image_download_path):
     """Function used to download yelp images for a business
@@ -190,15 +191,21 @@ def get_business_images(biz_name,image_download_path):
     # todo: switch to this later on and test only grabbing images of drinks
     urlfordrinks =   'http://www.yelp.com/biz_photos/' + biz_name + '?tab=drink'
 
-    page = requests.get(url, verify=False)
+    page = requests.get(urlfordrinks, verify=False)
     soup = BeautifulSoup(page.text, 'html.parser')
     photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
+    logger.info('Found %s images for drinks', len(photos))
+    if len(photos) < 1:
+            page = requests.get(url, verify=False)
+            soup = BeautifulSoup(page.text, 'html.parser')
+            photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
+            logger.info('Found %s images for the business overall', len(photos))
     i=0
-    logger.info('Found %s images', len(photos))
     if len(photos) > 0:
         for photo in photos:
             get_image_from_url(photo['src'], image_download_path + str(i) + ".jpg")
             # urllib.urlretrieve(photo['src'], image_download_path + str(i) + ".jpg")
+            logger.info('Finished getting image %s', i)
             log_file.write(str(i) + ".jpg," + photo['src'] + "\n")
             i+=1
         logger.info('Finished getting %s images for %s', i, biz_name)
