@@ -20,8 +20,12 @@ from . import yelp_helper
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-#API_KEY = creds.login['api_key']
 API_KEY = os.environ.get('API_KEY')
+if API_KEY:
+    logger.debug('Loaded Yelp API Key %s', API_KEY)
+else:
+    logger.error('No environment variable set for Yelp API key - set API_KEY=XXX')
+
 
 # top two functions not being used currenrly
 def load_graph(model_file):
@@ -108,14 +112,10 @@ def label_directory(image_path, model_dir, threshold):
         add argparse to pass arguments
     """
 
-    # testing new code
-    #imgFiles = [f for f in listdir(varPath) if isfile(join(varPath, f))]
     imgFiles = glob.glob(image_path+'/*.jpg')
-
     # load urls for each image
     url_file = image_path + '/log.txt'
     url_for_imgfile = dict(line.rstrip('\n').split(',') for line in open(url_file))
-
     
     # Loads label file, strips off carriage return
     label_lines = [line.rstrip() for line 
@@ -169,7 +169,7 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
     if location is None:
         location = "chicago"
 
-    logger.info('Starting to get %s businesses in %s', num_of_businesses_to_get, location)
+    logger.info('Starting to get %s businesses in %s from Yelp', num_of_businesses_to_get, location)
     all_bizids = yelp_helper.get_business_ids_from_api(location, num_of_businesses_to_get)
     
     # remove businesses with non ascii characters
