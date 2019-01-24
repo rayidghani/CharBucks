@@ -101,4 +101,4 @@ ENV/
 /site
 
 model_trainer/latteart_model/bottlenecks/
-images/
+/images/
