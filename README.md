@@ -22,4 +22,9 @@ Note: Use python 3.6 and not 3.7 (since tensorflow hasn't been updated to suppor
 
 ### To train or retrain:
 
-python tensorflow/examples/image_retraining/retrain.py --bottleneck_dir=/latteart/bottlenecks --how_many_training_steps 4000 --model_dir=/latteart/inception --output_graph=/latteart/retrained_graph.pb --output_labels=/latteart/retrained_labels.txt --image_dir /latteart/data
+1. update training images in model_trainer/latteart_model/data. There are two directories - art and notart. You can modify images in those directories and then retrain the model
+2. retrain using train.sh (it calls retrain.py)
+
+### To test locally
+
+Use "python label_image.py imagepath" to test locally
