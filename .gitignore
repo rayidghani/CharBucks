@@ -99,3 +99,6 @@ ENV/
 
 # mkdocs documentation
 /site
+
+model_trainer/latteart_model/bottlenecks/
+images/
