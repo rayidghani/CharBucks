@@ -66,6 +66,8 @@ def label_image(image_path, model_dir):
     # Load label file and strip off carriage return
     label_lines = [line.rstrip() for line 
                        in tf.gfile.GFile(model_dir + "retrained_labels.txt")]
+    logger.info('Loaded labels %s', label_lines)
+
 
     # Unpersist graph from file
     with tf.gfile.FastGFile(model_dir + "retrained_graph.pb", 'rb') as f:
@@ -79,12 +81,15 @@ def label_image(image_path, model_dir):
         
         predictions = sess.run(softmax_tensor, \
                  {'DecodeJpeg/contents:0': image_data})
+
+        logger.info('predictions are %s', predictions)
+
         
         # Sort to show labels of first prediction in order of confidence
         top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
 
         # Get prediction score for positive class
-        positive_score = round(predictions[0][1],2)
+        positive_score = round(predictions[0][0],2)
         logger.info('Score is %s', positive_score)
         return positive_score
 
