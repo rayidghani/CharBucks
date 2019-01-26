@@ -93,13 +93,11 @@ def label_image(image_path, model_dir):
         logger.info('Score is %s', positive_score)
         return positive_score
 
-
         # code for printing out probability for both classes
         #for node_id in top_k:
         #    human_string = label_lines[node_id]
         #    score = predictions[0][node_id]
         #    print('%s (score = %.5f)' % (human_string, score))
-
 
 def label_directory(image_path, model_dir, threshold):
     """Function used to label all images in a directory
@@ -146,7 +144,7 @@ def label_directory(image_path, model_dir, threshold):
             # Sort to show labels of first prediction in order of confidence
             top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
             # Get prediction score for positive class
-            positive_score = round(predictions[0][1],2)
+            positive_score = round(predictions[0][0],2)
             logger.info('Score for %s is %s', imageFile, positive_score)
             #positive_score = label_image(imageFile, model_dir)
             score_for_url[url_for_imgfile[os.path.basename(imageFile)]] = positive_score
