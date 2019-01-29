@@ -15,7 +15,6 @@ import time
 import random
 import urllib3
 from . import yelp_helper
-# from . import creds
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -56,7 +55,6 @@ def label_image(image_path, model_dir):
         Returns a score 
 
     Todo:
-        make latteart directory a paramaeter
         test with non jpeg images
     """
 
@@ -111,8 +109,7 @@ def label_directory(image_path, model_dir, threshold):
         Returns two numbers:  # of latte art images, total # of images
 
     todo:
-        make latteart directory a paramaeter
-        add argparse to pass arguments
+        modify to work with non jpeg images
     """
 
     imgFiles = glob.glob(image_path+'/*.jpg')
