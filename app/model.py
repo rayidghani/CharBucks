@@ -4,6 +4,8 @@ from . import yelp_helper
 from . import latteart_helpers
 import logging
 import requests
+import os
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -11,6 +13,7 @@ logger = logging.getLogger(__name__)
 model_dir = 'latteart_model_files/'
 imgdir ='images/'
 threshold = 0.6
+
 
 def is_ascii(s):
     return all(ord(c) < 128 for c in s)
@@ -22,6 +25,9 @@ def score_imageurl(image_url):
     yelp_helper.get_image_from_url(image_url, image_name)
     # score image
     positive_score = latteart_helpers.label_image(image_name, model_dir)
+
+    # log time, image_url, positive_score
+
     return positive_score
 
 def score_yelpbiz(bizid, verbose):
@@ -31,6 +37,7 @@ def score_yelpbiz(bizid, verbose):
             score_for_url, positive_count, img_count = latteart_helpers.label_directory(imgdir, model_dir, threshold)
         else:
             positive_count = 0
+
         return positive_count, img_count, score_for_url
     else:
         logger.error('bizid %s has non ascii characters', bizid)

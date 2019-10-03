@@ -21,9 +21,6 @@ import logging
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
-
-from . import creds
-
 # This client code can run on Python 2.x or 3.x.  Your imports can be
 # simpler if you only need one of those.
 try:
@@ -47,11 +44,7 @@ logger = logging.getLogger(__name__)
 # You can find them on
 # https://www.yelp.com/developers/v3/manage_app
 
-# client_id and client_secret are now deprecated
-#CLIENT_ID = creds.login['client_id']
-#CLIENT_SECRET = creds.login['app_secret']
-API_KEY = creds.login['api_key']
-#API_KEY = os.environ.get('API_KEY')
+API_KEY = os.environ.get('API_KEY')
 if API_KEY:
     logger.debug('Loaded Yelp API Key %s', API_KEY)
 else:
@@ -178,7 +171,7 @@ def get_business_images(biz_name,image_download_path):
     Returns:
         Returns the number of images downloaded.
     """
-    logger.info('Grabbing images for %s and putting them in %s', biz_name, image_download_path)
+    logger.info('Downloading images for %s and putting them in %s', biz_name, image_download_path)
 
     # delete if the directory already exists from last run
     shutil.rmtree(image_download_path)
@@ -199,7 +192,7 @@ def get_business_images(biz_name,image_download_path):
             page = requests.get(url, verify=False)
             soup = BeautifulSoup(page.text, 'html.parser')
             photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
-            logger.info('Found %s images for the business overall', len(photos))
+            logger.info('No drink imagees found. Getting %s images for the business overall', len(photos))
     i=0
     if len(photos) > 0:
         for photo in photos:
@@ -212,6 +205,6 @@ def get_business_images(biz_name,image_download_path):
         log_file.close()
         return i
     else:
-        logger.error('No photos found', exc_info=True)
+        logger.error('No images found', exc_info=True)
         return 0
 
