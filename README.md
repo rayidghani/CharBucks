@@ -3,8 +3,8 @@
 Uses tensorflow to classify an image into latte art or not.
 
 The web app can:
-1. Label an image 
-2. Label a yelp business
+1. Label an image from a URL 
+2. Label a yelp business from their Yelp ID
 3. Give top k latte art coffeeshops given a location (zipcode, lat long, city, etc.)
 
 ## Set up for deploying to heroku
@@ -47,7 +47,7 @@ Input: Yelp businees id, Tensorflow Model
 	1. Download first 30 images of the business from Yelp
 	2. Classify each image with pre-trained neural network
 	3. Get prediction score for each image
-	4. Return number (or percentage) of images with score > threshold (curreny 0.6)
+	4. Return number (or percentage) of images with score > threshold (currently 0.6)
 
 * Get top k coffeeshops in a location
 Input: Location (zip, lat long, address, city), number of coffeeshops to return 
@@ -55,7 +55,7 @@ Input: Location (zip, lat long, address, city), number of coffeeshops to return
 	2. For each business, download first 30 images of the business from Yelp
 	3. Classify each image with pre-trained neural network
 	4. Get prediction score for each image
-	5. Score business with number (or percentage) of images with score > threshold (curreny 0.6)
+	5. Score business with number (or percentage) of images with score > threshold (currently 0.6)
 	6. Return ranked list of businesses
 
 

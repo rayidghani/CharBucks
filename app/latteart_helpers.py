@@ -27,8 +27,6 @@ if API_KEY:
 else:
     logger.error('No environment variable set for Yelp API key - set API_KEY=XXX')
 
-
-# top two functions not being used currenrly
 def load_graph(model_file):
     graph = tf.Graph()
     graph_def = tf.GraphDef()
@@ -64,29 +62,18 @@ def label_image(image_path, model_dir):
     # Read in the image_data
     image_data = tf.gfile.FastGFile(image_path, 'rb').read()
 
-    #Load label file and strip off carriage return
-    label_lines = [line.rstrip() for line 
-                       in tf.gfile.GFile(model_dir + "retrained_labels.txt")]
+    label_lines = load_labels(model_dir + "retrained_labels.txt")
     logger.info('Loaded labels %s from %s', label_lines, model_dir)
-
-    # Unpersist graph from file
-    with tf.gfile.FastGFile(model_dir + "retrained_graph.pb", 'rb') as f:
-        graph_def = tf.GraphDef()
-        graph_def.ParseFromString(f.read())
-        _ = tf.import_graph_def(graph_def, name='')
-
-    #load_labels_and_graph("retrained_labels.txt", "retrained_graph.pb")
+    graph = tf.Graph()
+    graph = load_graph(model_dir + "retrained_graph.pb")
 
     with tf.Session() as sess:
         # Feed the image_data as input to the graph and get first prediction
-        softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
-        
+        softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')        
         predictions = sess.run(softmax_tensor, \
                  {'DecodeJpeg/contents:0': image_data})
-
         logger.info('predictions are %s', predictions)
-
-        
+      
         # Sort to show labels of first prediction in order of confidence
         top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
 
@@ -127,72 +114,12 @@ def label_directory(image_path, model_dir, threshold):
     graph = tf.Graph()
     graph = load_graph(model_dir + "retrained_graph.pb")
 
-    #load_labels_and_graph("retrained_labels.txt", "retrained_graph.pb")
-
     with tf.Session(graph=graph) as sess:
         # Feed the image_data as input to the graph and get first prediction
         softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')    
         img_count = 0
         positive_count = 0
         score_for_url = {}
-        output_list= []
-        for imageFile in imgFiles:
-            image_data = tf.gfile.FastGFile(imageFile, 'rb').read()
-            predictions = sess.run(softmax_tensor, \
-                 {'DecodeJpeg/contents:0': image_data})
-            # Sort to show labels of first prediction in order of confidence
-            top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
-            # Get prediction score for positive class
-            positive_score = round(predictions[0][0],2)
-            logger.info('Score for %s is %s', imageFile, positive_score)
-            #positive_score = label_image(imageFile, model_dir)
-            score_for_url[url_for_imgfile[os.path.basename(imageFile)]] = positive_score
-            if (positive_score > threshold):
-                positive_count+=1
-            img_count += 1
-
-        return score_for_url, positive_count, img_count
-
-
-
-
-def label_directory_old(image_path, model_dir, threshold):
-    """Function used to label all images in a directory
-
-    Args:
-        argv[1]: path to image directory
-        argv[2]: model dir
-        argv[3]: threshold above which to classify as art
-
-    Returns:
-        Returns two numbers:  # of latte art images, total # of images
-
-    todo:
-        modify to work with non jpeg images
-    """
-
-    imgFiles = glob.glob(image_path+'/*.jpg')
-    # load urls for each image
-    url_file = image_path + '/log.txt'
-    url_for_imgfile = dict(line.rstrip('\n').split(',') for line in open(url_file))
-    
-    # Loads label file, strips off carriage return
-    label_lines = [line.rstrip() for line 
-                       in tf.gfile.GFile(model_dir + "/retrained_labels.txt")]
-
-    # Unpersists graph from file
-    with tf.gfile.FastGFile(model_dir + "/retrained_graph.pb", 'rb') as f:
-        graph_def = tf.GraphDef()
-        graph_def.ParseFromString(f.read())
-        _ = tf.import_graph_def(graph_def, name='')
-
-    with tf.Session() as sess:
-        # Feed the image_data as input to the graph and get first prediction
-        softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')    
-        img_count = 0
-        positive_count = 0
-        score_for_url = {}
-        output_list= []
         for imageFile in imgFiles:
             image_data = tf.gfile.FastGFile(imageFile, 'rb').read()
             predictions = sess.run(softmax_tensor, \
@@ -212,9 +139,6 @@ def label_directory_old(image_path, model_dir, threshold):
         
 def is_ascii(s):
     return all(ord(c) < 128 for c in s)
-
-def log_business():
-    return 1
 
 def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgdir, threshold):
     """Function used to get scores for num_of_businesses_to_get businesses in a location
@@ -242,32 +166,28 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
     logger.info('Got %s businesses in %s', len(clean_bizids), location)
     biz_count = 0
 
-
     if len(clean_bizids) > 0:
         positive_counts = {}  #store number of positive images for the business
         total_counts = {} # store total number of imageas retrieved for the business
         biz_names = {} # store the business name
         for biz in clean_bizids:
             bizresponse = yelp_helper.get_business(API_KEY, biz)
+            bizurl = 'http://www.yelp.com/biz/' + biz
             bizname = bizresponse['name']
             bizalias = bizresponse['alias']
             logger.info('Processing %s', bizname)
-            bizurl = 'http://www.yelp.com/biz/' + biz
 
             if biz in datescored:
                 # if this business has already been scored earlier, skip it
                 # todo: put time limit 
-                positive_count=int(numpositiveimages[biz])
-                img_count=int(numimages[biz])
-                logger.info('business %s already scored in %s %s', biz, datescored[biz], numpositiveimages[biz])
-                positive_counts[bizurl]=positive_count
-                total_counts[bizurl]= img_count
+                positive_count = int(numpositiveimages[biz])
+                img_count = int(numimages[biz])
+                logger.info('business %s already scored on %s with %s positive images', biz, datescored[biz], numpositiveimages[biz])
+                positive_counts[bizurl] = positive_count
+                total_counts[bizurl] = img_count
                 biz_names[bizurl] = bizname
+
             else:
-                bizresponse = yelp_helper.get_business(API_KEY, biz)
-                bizname = bizresponse['name']
-                logger.info('Processing %s', bizname)
-                bizurl = 'http://www.yelp.com/biz/' + biz
                 num_images = 0
                 positive_count = 0
                 logger.info('Getting images for id %s name %s and putting them in %s', biz, bizname, tmpimgdir)
@@ -277,9 +197,9 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
                 if num_images:
                     score_for_url, positive_count, img_count = label_directory(tmpimgdir, model_dir, threshold)
                 else:
-                    positive_count = 0
+                    score_for_url, positive_count, img_count = 0
                 
-                positive_counts[bizurl]= int(positive_count)
+                positive_counts[bizurl]= positive_count
                 total_counts[bizurl]= num_images
                 biz_names[bizurl] = bizname
                 
@@ -294,13 +214,15 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
                     writer.writerow(line)
                     #f.write(str(datetime.datetime.today().strftime('%Y-%m-%d')) + ',' + biz + ',' + bizname + ',' + str(positive_count)  + ','  + str(img_count) + '\n')      
 
-            logger.info('%s has %s out of %s arts', bizname, positive_count, img_count)
-            wait_time = random.randint(1, 5)
             biz_count += 1
+            logger.info('%s has %s out of %s arts', bizname, positive_count, img_count)
             logger.info('Processed %s out of %s businesses', biz_count, len(clean_bizids))
+            
             if biz not in datescored:
+                wait_time = random.randint(1, 5)
                 logger.info('waiting %s seconds to process next business...',wait_time)
                 time.sleep(wait_time)
+        
         return positive_counts, total_counts, biz_names
     else:
         logger.error('No businesses returned by get_business_ids_from_api', exc_info=True)
@@ -309,7 +231,6 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
 def load_logs(bizlogfile):
     with open(bizlogfile, mode='r') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
-        #{logger.info('%s %s %s %s', rows[0],rows[1],rows[2],rows[3], rows[4]) for rows in csv_reader}
         datescored=dict()
         numpositiveimages=dict()
         numimages=dict()
@@ -318,7 +239,7 @@ def load_logs(bizlogfile):
             datescored[rows[1]]=rows[0]
             numpositiveimages[rows[1]]=rows[3]
             numimages[rows[1]]=rows[4]
-        logger.info('function loaded %s lines from log file', len(datescored))
+        logger.info('Loaded %s lines from log file', len(datescored))
 
     return datescored, numpositiveimages, numimages
 

@@ -180,8 +180,6 @@ def get_business_images(biz_name,image_download_path):
     log_file = open(image_download_path + 'log.txt', "w")
     
     url = 'http://www.yelp.com/biz_photos/' + biz_name
-
-    # todo: switch to this later on and test only grabbing images of drinks
     urlfordrinks =   'http://www.yelp.com/biz_photos/' + biz_name + '?tab=drink'
 
     page = requests.get(urlfordrinks, verify=False)
