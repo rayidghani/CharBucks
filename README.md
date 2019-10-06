@@ -1,5 +1,38 @@
 # Latte Art Classifier
 
+After working on numerous projects in health, criminal justice, education, energy, workforce development, and social services, I realized that the most social good i can do is to help the world find good coffeeshops. This of course ranked right below finding yet another way for restaurants to deliver food to hungry customers to make the world a better place.
+
+Problem Definition:
+A 1% problem I face when I go to a new city is to find a good coffeeshop. Of course you can ask friends, read through coffee forums, or browse yelp reviews. All of them have their shortcomings and take time. I've usually found a good heuristic for finding decent coffeeshops - if their baristias can produce good latte art, that's a high precision proxy for having well-trained baristas which in turn is a good proxy for decent espressos/cappucinos.
+
+
+Existing Approaches:
+How do I find coffeeshops that has baristas that can produce good latte art? I start with Yelp, and then browse through photos of coffee cups to pick out ones that have espresso and milk based drinks and scan them to get a sense of which ones have decent latte art. I do this for a number of coffeeshops in a given city or neighborhood and use that to decide whewre to go. This process works pretty well but is time consuming. 
+
+New Approach:
+About a year and a hlaf ago, I was in LA in my hotel room, the night before a meeting. Since my meeting wasn't until 11am, I thought I had time to get come good coffee. Of course i had recommendations from a friend but those recommendations weren't near where i was staying (it's LA after all). I started my usual search process and realized that I may be able to use the magic of AI and deep learning to make the world a better place (hopefully by now you're getting the cynicism when I use that phrase).
+
+What I built:
+In the next couple of hours, I ended up building a fairly simple app that automated what i was doing manually. I did an image search for "good latte art" and downloaded a couple of hundred images. i did another search for "bad latte art" and downloaded a couple of hundred images. I scanned throufgh those images and filtered ones i didn't think matched my search. I then trained footnote a neural network to differentiate between good and bad latte art photos which worked pretty well. Now that i had a good classifier, here's what i did:
+
+1. I wrote a script to find nearby coffeeshops from yelp
+2. For each coffeeshops, i downloaded a handful of photos that people had taken of their drinks
+3. I ran these images againszt my classifier and counted the # of images that were claxsified as "good"
+4. I then ranked the coffeeshoips based on that score 
+
+Results:
+I've been using this app for the last 18 months and have been enormously happy with my validaiton results. I've done a field trial by sampling from the list and have found both the precision and recall to be fairly high, compared to both a random baseline and "popularity" baseline. Of course, this is based on my personal tests
+
+Limitations:
+
+
+Future Work:
+All the code is here so feel free to use, modify, improve it.
+
+
+
+
+
 Uses tensorflow to classify an image into latte art or not.
 
 The web app can:
