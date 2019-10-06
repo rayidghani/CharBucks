@@ -2,16 +2,20 @@
 
 After working on numerous projects in health, criminal justice, education, energy, workforce development, and social services, I realized that the most social good I can do is to help the world find good coffeeshops. This of course ranked right below finding yet another way for restaurants to deliver food to hungry customers to make the world a better place.
 
-###Problem Definition:
+### Problem Definition:
+
 A 1% problem I face when I go to a new city is to find a good coffeeshop. Of course I can ask friends, read through coffee forums, or browse Yelp reviews. All of them take time and have their shortcomings. I've usually found a good heuristic for finding decent coffeeshops - if their baristas can produce good latte art, that's a proxy for having well-trained baristas which in turn is a good proxy for decent espressos/cappucinos.
 
-###Existing Approaches:
+### Existing Approaches:
+
 How do I find coffeeshops that have baristas that can produce good latte art? I start with Yelp, and then browse through photos of coffee cups to pick out ones that have espresso and milk based drinks and scroll to get a sense of which ones have decent latte art. I do this for a number of coffeeshops in a given city or neighborhood and use that to decide whewre to go. This process works pretty well but is time consuming. 
 
-###New Approach:
+### New Approach:
+
 About a year and a half ago, I was in LA in my hotel room, the night before a meeting. Since my meeting wasn't until 11am, I thought I had time to get some good coffee. Of course I had recommendations from a couple of friends but those recommendations weren't near where I was staying (it's LA after all). I started my usual search process and realized that I may be able to use the magic of AI and deep learning to make the world a better place (hopefully by now you're getting the cynicism when I use that phrase).
 
-###What I built:
+### What I built:
+
 In the next couple of hours, I ended up building a fairly simple app that automated what I was doing manually. I did an image search for "good latte art" and downloaded a couple of hundred images. I did another search for "bad latte art" and downloaded a couple of hundred images. I scanned through those images and deleted ones I didn't think matched my search. I then trained a neural network to differentiate between good and bad latte art photos. Now that i had a good classifier, here's what I did:
 
 1. I wrote a script to find nearby coffeeshops from yelp
@@ -19,16 +23,17 @@ In the next couple of hours, I ended up building a fairly simple app that automa
 3. I ran these images against my classifier and counted the # of images that were classified as "good"
 4. I then ranked the coffeeshoips based on that score 
 
-###Results:
+### Results:
+
 I've been using this app for the last 18 months and have been happy with my validaiton results. I've done a field trial by sampling from the list and have found both the precision and recall to be fairly high, compared to both a random baseline and "popularity" baseline. 
 
 
-###Limitations:
+### Limitations:
 
 
-###Future Work:
+### Future Work:
+
 All the code is here so feel free to use, modify, improve it.
-
 
 
 
