@@ -175,6 +175,7 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
             bizurl = 'http://www.yelp.com/biz/' + biz
             bizname = bizresponse['name']
             bizalias = bizresponse['alias']
+            #bizcoordinates = bizresponse['coordinates']
             logger.info('Processing %s', bizname)
 
             if biz in datescored:
