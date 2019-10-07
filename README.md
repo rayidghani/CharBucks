@@ -1,14 +1,14 @@
 # Latte Art Classifier
 
-After working on numerous projects in health, criminal justice, education, energy, workforce development, and social services, I realized that the most social good I can do is to help the world find good coffeeshops. This of course ranked right below finding yet another way for restaurants to deliver food to hungry customers to make the world a better place.
+After working on numerous projects in health, criminal justice, education, energy, workforce development, and social services, I realized that the area of social good i was missing from my portfolio was helping the world find good coffeeshops. This of course ranked right below finding yet another way for restaurants to deliver food to hungry customers to make the world a better place.
 
 ### Problem Definition:
 
-A 1% problem I face when I go to a new city is to find a good coffeeshop. Of course I can ask friends, read through coffee forums, or browse Yelp reviews. All of them take time and have their shortcomings. I've usually found a good heuristic for finding decent coffeeshops - if their baristas can produce good latte art, that's a proxy for having well-trained baristas which in turn is a good proxy for decent espressos/cappucinos.
+A 1% problem I face when I go to a new city is to find a good coffeeshop. Of course I can ask friends, read through coffee forums, or browse Yelp reviews. All of these approaches take time and have their shortcomings. I've usually found a good heuristic for finding decent coffeeshops - if their baristas can produce good latte art, that's a proxy for having well-trained baristas which in turn is a good proxy for decent espresso/cappucino.
 
 ### Existing Approaches:
 
-How do I find coffeeshops that have baristas that can produce good latte art? I start with Yelp, and then browse through photos of coffee cups to pick out ones that have espresso and milk based drinks and scroll to get a sense of which ones have decent latte art. I do this for a number of coffeeshops in a given city or neighborhood and use that to decide whewre to go. This process works pretty well but is time consuming. 
+How do I find coffeeshops that have baristas that can produce good latte art? I start with Yelp, and then browse through photos of coffee cups to pick out ones that have espresso and milk based drinks and scroll to get a sense of which ones have decent latte art. I do this for a number of coffeeshops in a given city or neighborhood and use that to decide whewre to go. This process works pretty well but is extremely time consuming. 
 
 ### New Approach:
 
@@ -25,7 +25,7 @@ In the next couple of hours, I ended up building a fairly simple app that automa
 
 ### Results:
 
-I've been using this app for the last 18 months and have been happy with my validaiton results. I've done a field trial by sampling from the list and have found both the precision and recall to be fairly high, compared to both a random baseline and "popularity" baseline. 
+I've been using this app for the last 18 months and have been happy with my validaiton results. I've done a field trial by sampling from the list and have found both the precision and recall (and most importantly my satisfaction) to be fairly high, compared to both a random baseline and "going to popular coffeeshops" baseline. 
 
 
 ### Limitations:
