@@ -9,7 +9,7 @@
     <div class="row">
       <form method="post">
         <dl>
-          <dd><textarea rows="2" cols="60" name="posttext"></textarea></dd>
+          <dd><textarea rows="2" cols="60" name="yelpalias"></textarea></dd>
           <dd><input type="checkbox" name="verbose" value="1" checked="checked">Verbose</dd>
           <dd><input type="submit" value="Submit" class="btn btn-primary btn-sm"/></dd>
         </dl>
@@ -18,10 +18,10 @@
 
 
 <p class="lead">
-{% if score_for_url %}
-{{positive_count}} out of {{img_count}}<br>
+{% if url_to_score_hash %}
+{{positive_image_count}} arts out of {{total_image_count}} images<br>
 
-{% for url, score in score_for_url.items() %}
+{% for url, score in url_to_score_hash.items() %}
 
 <img src="{{ url }}"> {{ score }}<br>
 

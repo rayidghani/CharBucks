@@ -9,36 +9,35 @@ def index():
 @app.route('/url', methods=['POST', 'GET'])
 def classify_image_url():
     if request.method == 'POST':
-        posttext = request.form['posttext']
-        if posttext is not "":
-            result = model.score_imageurl(posttext)
-            print(result)
+        url = request.form['url']
+        if url is not "":
+            result = model.score_imageurl(url)
             return render_template("url.html", results=result)
     return render_template("url.html")
 
 @app.route('/bizid', methods=['POST', 'GET'])
 def classify_bizid():
     if request.method == 'POST':
-        posttext = request.form['posttext']
+        yelpalias = request.form['yelpalias']
         if request.form.get("verbose"):
             verbose = 1
         else:
             verbose = 0
-        if posttext is not "":
-            positive_count, img_count, score_for_url = model.score_yelpbiz(posttext,verbose)
-            return render_template("bizid.html", positive_count=positive_count, img_count=img_count, score_for_url=score_for_url)
+        if yelpalias is not "":
+            positive_image_count, total_image_count, url_to_score_hash = model.score_yelpbiz(yelpalias, verbose)
+            return render_template("bizid.html", positive_image_count=positive_image_count, total_image_count=total_image_count, url_to_score_hash=url_to_score_hash)
     return render_template("bizid.html")
 
 @app.route('/location', methods=['POST', 'GET'])
 def classify_location():
     if request.method == 'POST':
-        posttext = request.form['posttext']
+        location = request.form['location']
         if request.form.get("verbose"):
             verbose = 1
         else:
             verbose = 0
         limit = request.form['limit']
-        if posttext is not "":
-            scores, counts, names = model.get_biz_scores_from_location(posttext, limit, verbose)
-            return render_template("location.html", scores=scores, counts=counts, names=names)
+        if location is not "":
+            positive_image_counts, total_image_counts, names = model.score_location(location, limit, verbose)
+            return render_template("location.html", location=location, scores=positive_image_counts, counts=total_image_counts, names=names)
     return render_template("location.html")

@@ -9,7 +9,7 @@
 <p><p>
       <form method="post">
         <dl>
-          <dd>Location: <textarea rows="1" cols="30" name="posttext"></textarea></dd><p>
+          <dd>Location: <textarea rows="1" cols="30" name="location"></textarea></dd><p>
           <dd>Number of results to return: <textarea rows="1" cols="5" name="limit"></textarea></dd><p>
           <dd><input type="checkbox" name="verbose" value="1" checked="checked"> Verbose<br><p>
           <dd><input type="submit" value="Submit" class="btn btn-primary btn-md"/></dd>
@@ -20,7 +20,7 @@
   <p class="lead">
 
 {% if scores %}
-
+<h4> Best Coffeesops near {{ location }}</h4>
 {% for item in scores|dictsort(false, 'value')|reverse %}
 <a href="{{ item[0] }}" target="_blank">{{ names[item[0]] }}</a> {{ scores[item[0]] }} (out of {{ counts[item[0]] }})<br>
 

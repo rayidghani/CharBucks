@@ -59,6 +59,7 @@ BUSINESS_PATH = '/v3/businesses/'  # Business ID will come after slash.
 def get_image_from_url(image_url, image_name):
 
     # download image from image_url
+    # todo: catch error
     r = requests.get(image_url, verify=False)
     #image_name = "image_to_classify__" + str(random.randint(1,10000)) + ".jpg"
     image_file = open(image_name, 'wb')
@@ -103,6 +104,8 @@ def search(api_key, location, num_of_businesses_to_get):
     Returns:
         dict: The JSON response from the request.
     """
+    # change here to get different categories or search terms
+    # todo: load from config file
     term = "espresso"
     category = "coffee"
     url_params = {
@@ -141,35 +144,35 @@ def get_business(api_key, business_id):
     return request(API_HOST, business_path, API_KEY)
 
 def get_business_ids_from_api(location, num_of_businesses_to_get):
-    """Queries the API by the input values from the user.
+    """Queries the API based on the input location from the user.
 
     Args:
         location (str): The location of the business to query.
     """
     #bearer_token = obtain_bearer_token(API_HOST, TOKEN_PATH)
 
-    logger.info('Getting search results from api')
+    logger.info('Calling search api')
     response = search(API_KEY, location, num_of_businesses_to_get)
     businesses = response.get('businesses')
     if not businesses:
-        logger.error('No businesses found in %s', location)
+        logger.error('No relevant businesses found in %s', location)
         return 0
     else:
         num_of_businesses = len(businesses)
-        list_to_return = []
+        business_ids_list = []
         for business in businesses:
-            list_to_return.append(business['id'])
-        return list_to_return
+            business_ids_list.append(business['id'])
+        return business_ids_list
 
 def get_business_images(biz_name,image_download_path):
-    """Function used to download yelp images for a business
+    """download yelp images for a business
 
     Args:
-        argv[1]: yelp business id
-        argv[2]: directory to store images in.
+        biz_name: yelp business id
+        image_download_path: directory to store images in.
 
     Returns:
-        Returns the number of images downloaded.
+        Downloads and Returns the number of images downloaded.
     """
     logger.info('Downloading images for %s and putting them in %s', biz_name, image_download_path)
 
@@ -177,31 +180,34 @@ def get_business_images(biz_name,image_download_path):
     shutil.rmtree(image_download_path)
     # make the directory again
     os.makedirs(image_download_path)
-    log_file = open(image_download_path + 'log.txt', "w")
+    temp_log_file = open(image_download_path + 'tmplog.txt', "w")
     
     url = 'http://www.yelp.com/biz_photos/' + biz_name
-    urlfordrinks =   'http://www.yelp.com/biz_photos/' + biz_name + '?tab=drink'
+    urlfordrinks = 'http://www.yelp.com/biz_photos/' + biz_name + '?tab=drink'
 
     page = requests.get(urlfordrinks, verify=False)
     soup = BeautifulSoup(page.text, 'html.parser')
     photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
     logger.info('Found %s images for drinks', len(photos))
-    if len(photos) < 1:
+    image_counter=0
+    if not(len(photos)):
+    # if there were no drink photos, try getting regular photos
             page = requests.get(url, verify=False)
             soup = BeautifulSoup(page.text, 'html.parser')
             photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
-            logger.info('No drink imagees found. Getting %s images for the business overall', len(photos))
-    i=0
-    if len(photos) > 0:
+            logger.info('No drink images found. Getting %s images for the business overall', len(photos))
+    
+    if len(photos):
+    # if any photos were found
         for photo in photos:
-            get_image_from_url(photo['src'], image_download_path + str(i) + ".jpg")
+            get_image_from_url(photo['src'], image_download_path + str(image_counter) + ".jpg")
             # urllib.urlretrieve(photo['src'], image_download_path + str(i) + ".jpg")
-            logger.info('Finished getting image %s', i)
-            log_file.write(str(i) + ".jpg," + photo['src'] + "\n")
-            i+=1
-        logger.info('Finished getting %s images for %s', i, biz_name)
-        log_file.close()
-        return i
+            logger.info('Finished getting image %s', image_counter)
+            temp_log_file.write(str(image_counter) + ".jpg," + photo['src'] + "\n")
+            image_counter+=1
+        logger.info('Finished getting %s images for %s', image_counter, biz_name)
+        temp_log_file.close()
+        return image_counter
     else:
         logger.error('No images found', exc_info=True)
         return 0
