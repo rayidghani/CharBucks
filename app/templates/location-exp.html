@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<head>
+ <style>
+  /*
+   CSS-Tricks Example
+   by Chris Coyier
+   http://css-tricks.com
+*/
+
+* { margin: 0; padding: 0; }
+body { font: 14px Georgia, serif; color: #222; !important;}
+
+article, aside, figure, footer, header, hgroup,
+menu, nav, section { display: block; }
+
+#page-wrap { width: 1000px; margin: 0px; }
+#map_canvas { width: 100%; height: 600px; width: 600px; float: right; position: relative; z-index: 30 !important; }
+
+h1 { margin: 0 0 15px 0; font: bold 18px Helvetica, Arial, Sans-Serif; letter-spacing: -2px; !important;}
+h2 { margin: 0 0 15px 0; font: bold 14px Helvetica, Arial, Sans-Serif; letter-spacing: -1px; text-shadow: 0 1px 0px rgba(255,255,255,0.3); !important;}
+h3 { margin: 0 0  1px 0; font: bold 12px Helvetica, Arial, Sans-Serif; letter-spacing: -1px; !important;}
+
+
+#locations { list-style: none; width: 300px; float: left;  }
+#locations li { padding: 0px; width: 300px; float: left; position: relative; z-index: 20; }
+#locations li:hover, #locations li.hover { background: #ffc6ab url(../static/shadow.png) 800px 0 repeat-y; }
+#locations li:hover h3, #locations li.hover h3 { color: red; text-shadow: 0 1px 0px rgba(255,255,255,0.3); }
+
+
+#content { width: 300px; }
+
+#more-info { width: 340px; float: right; background: #ffe8b2; padding: 20px; height: 360px; }
+#more-info * { position: relative; z-index: 40; }
+#more-info > div { background: #e9e2bf; -moz-box-shadow: 0 0 14px rgba(70,49,1,0.5); -webkit-box-shadow: 0 0 14px rgba(70,49,1,0.5); padding: 20px; height: 320px; }
+.longdesc { display: none; }
+
+
+</style>
+
+	<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+	
+	<title>Google Map Slider</title>
+	
+	<link rel='stylesheet' type='text/css' href='css/sliderstyle.css' />
+  	
+  <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js'></script>
+   <script src="http://maps.google.com/maps/api/js?key=AIzaSyAyaOrleKRsj_obhEsoGKcj_vAtOopeaJ0&sensor=true" 
+          type="text/javascript"></script>
+
+
+          <script>
+    function showPosition() {
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var positionInfo = position.coords.latitude + "," +  position.coords.longitude;
+                document.getElementById("location").value = positionInfo;
+            });
+        } else {
+            alert("Sorry, your browser does not support HTML5 geolocation.");
+        }
+    }
+</script>
+
+  <script type='text/javascript'>
+  
+    $(function() {
+    
+      var chicago = new google.maps.LatLng(41.924832, -87.697456),
+          pointToMoveTo, 
+          first = true,
+          curMarker = new google.maps.Marker({}),
+          $el;
+      
+      var myOptions = {
+          zoom: 14,
+          center: chicago,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+      
+      var map = new google.maps.Map($("#map_canvas")[0], myOptions);
+
+//added
+          var marker, i;
+
+    
+      $("#locations li").mouseenter(function() {
+      
+        $el = $(this);
+                
+        if (!$el.hasClass("hover")) {
+        
+          $("#locations li").removeClass("hover");
+          $el.addClass("hover");
+        
+          if (!first) { 
+            
+            // Clear current marker
+            curMarker.setMap(); 
+            
+            // Set zoom back to Chicago level
+            // map.setZoom(10);
+          }
+          
+          // Move (pan) map to new location
+            pointToMoveTo = new google.maps.LatLng($el.attr("data-geo-lat"), $el.attr("data-geo-long"));
+            map.panTo(pointToMoveTo);
+          
+          // Add new marker
+          curMarker = new google.maps.Marker({
+              position: pointToMoveTo,
+              map: map,
+              icon: "static/bluemarker.png"
+          });
+          
+          // On click, zoom map
+          google.maps.event.addListener(curMarker, 'click', function() {
+             map.setZoom(14);
+          });
+          
+          // Fill more info area
+          $("#more-info")
+            .find("h2")
+              .html($el.find("h3").html())
+              .end()
+            .find("p")
+              .html($el.find(".longdesc").html());
+          
+          // No longer the first time through (re: marker clearing)        
+          first = false; 
+        }
+        
+      });
+      
+      $("#locations li:first").trigger("mouseenter");
+      
+    });
+
+  </script>
+
+</head>
+
+
+  {% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+
+
+<body>
+<p>
+<div class="jumbotron">
+<h3>Art Finder</h4>
+<p><p>
+      <form method="post">
+        <dl>
+          <dd>Location: <textarea rows="1" cols="30" name="location" id="location"></textarea><button type="button" onclick="showPosition();">Use Current Location</button></dd><p>
+          <dd>Number of results to return: <input type="text" size="2" name="limit" value="10"/></dd><p>
+          <dd><input type="checkbox" name="verbose" value="1" checked="checked"> Verbose<br><p>
+            <dd><input type="checkbox" name="map" value="1" checked="checked"> Show Map<br><p>
+          <dd><input type="submit" value="Submit" class="btn btn-primary btn-md"/></dd>
+        </dl>
+      </form>
+
+</div>
+	<div id="page-wrap">
+	
+	   
+{% if scores %}
+     <h3>Best Coffeeshops near {{ location }}</h3>
+     
+     <ul id="locations">
+
+
+<script type="text/javascript">
+  var i=0;
+  var locations=[]
+
+</script>
+
+{% for item in scores|dictsort(false, 'value')|reverse %}
+
+   <li data-geo-lat="{{ latitudes[item[0]] }}" data-geo-long="{{ longitudes[item[0]] }}">
+          <h4><a href="{{ item[0] }}" target="_blank">{{ names[item[0]] }}</a></h4>
+          <h5>{{ scores[item[0]] }} (out of {{ counts[item[0]] }} )</h5>
+        </li>
+
+<script type="text/javascript">
+      locations[i] = ['{{ item[0] }}', '{{ names[item[0]] }}', '{{ latitudes[item[0]] }}', '{{ longitudes[item[0]] }}', '{{ scores[item[0]] }}'];
+i++;
+</script>
+
+{% endfor %}
+
+     
+     </ul>
+
+     <div id="map_canvas"></div>
+     
+     
+{% endif %}	
+{% endblock %}

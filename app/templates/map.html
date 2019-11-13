@@ -1,0 +1,79 @@
+<!-- index.html-->
+<head>
+  <script src="http://maps.google.com/maps/api/js?key=AIzaSyAyaOrleKRsj_obhEsoGKcj_vAtOopeaJ0" 
+          type="text/javascript"></script>
+</head>  
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+
+<p>
+<div class="jumbotron">
+<h3>Art Finder</h4>
+<p><p>
+      <form method="post">
+        <dl>
+          <dd>Location: <textarea rows="1" cols="30" name="location"></textarea></dd><p>
+          <dd>Number of results to return: <textarea rows="1" cols="5" name="limit"></textarea></dd><p>
+          <dd><input type="checkbox" name="verbose" value="1" checked="checked"> Verbose<br><p>
+          <dd><input type="submit" value="Submit" class="btn btn-primary btn-md"/></dd>
+        </dl>
+      </form>
+
+
+  <p class="lead">
+
+{% if scores %}
+
+
+<script type="text/javascript">
+  var i=0;
+  var locations=[]
+</script>
+
+<h4> Best Coffeeshops near {{ location }}</h4>
+{% for item in scores|dictsort(false, 'value')|reverse %}
+<a href="{{ item[0] }}" target="_blank">{{ names[item[0]] }}</a> {{ scores[item[0]] }} (out of {{ counts[item[0]] }} {{ latitudes[item[0]] }} {{ longitudes[item[0]] }} )<br>
+
+<script type="text/javascript">
+
+locations[i] = ['{{ names[item[0]] }}', '{{ latitudes[item[0]] }}', '{{ longitudes[item[0]] }}', '{{ scores[item[0]] }}'];
+i++;
+
+
+  </script>
+
+{% endfor %}
+{% endif %}
+
+
+
+  <div id="map" style="width: 800px; height: 700px;"></div>
+<script type="text/javascript">
+
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 4,
+      center: new google.maps.LatLng(41.881832, -87.623177),
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+
+    var infowindow = new google.maps.InfoWindow();
+
+    var marker, i;
+
+    for (i = 0; i < locations.length; i++) {  
+      marker = new google.maps.Marker({
+        position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+        map: map
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(locations[i][0]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+    }
+</script>
+
+{% endblock %}

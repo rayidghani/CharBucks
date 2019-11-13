@@ -1,0 +1,170 @@
+<!-- index.html-->
+<head>
+  <script src="http://maps.google.com/maps/api/js?key=AIzaSyAyaOrleKRsj_obhEsoGKcj_vAtOopeaJ0" 
+          type="text/javascript"></script>
+
+          <script>
+    function showPosition() {
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var positionInfo = position.coords.latitude + ", " +  position.coords.longitude;
+                document.getElementById("location").value = positionInfo;
+            });
+        } else {
+            alert("Sorry, your browser does not support HTML5 geolocation.");
+        }
+    }
+</script>
+</head>  
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+
+<p>
+<div class="jumbotron">
+<h3>Art Finder</h4>
+<p><p>
+      <form method="post">
+        <dl>
+          <dd>Location: <textarea rows="1" cols="30" name="location" id="location"></textarea>
+            <button type="button" onclick="showPosition();">Use Current Location</button>
+</dd>
+          <dd><input type="submit" value="Submit" class="btn btn-primary btn-md"/></dd>
+        </dl>
+      </form>
+
+      
+
+  <p class="lead">
+
+
+<script type="text/javascript">
+  var i=0;
+  var locations=[]
+
+</script>
+
+<h4> Best Coffeeshops near {{ location }}</h4>
+{% for item in scores|dictsort(false, 'value')|reverse %}
+
+<script type="text/javascript">
+
+
+locations[i] = ['{{ item[0] }}', '{{ names[item[0]] }}', '{{ latitudes[item[0]] }}', '{{ longitudes[item[0]] }}', '{{ scores[item[0]] }}'];
+
+i++;
+
+  </script>
+
+
+{% endfor %}
+<script type="text/javascript">
+var coords  = '{{ location }}';
+var zoomlevel = '{{ zoom }}';
+var array = coords.split(',');
+
+</script>
+
+
+
+  <div id="map" style="width: 800px; height: 700px;"></div>
+<script type="text/javascript">
+
+if (zoomlevel == 10)
+ {      var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 14,
+      center: new google.maps.LatLng(array[0], array[1] ),
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+   
+   var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(array[0], array[1]),
+        icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/info-i_maps.png',
+        map: map
+      });
+     
+}
+else
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 4,
+      center: new google.maps.LatLng(array[0], array[1] ),
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+
+
+    var pinColorGreen = "#006400";
+    var pinColorRed = "#FF0000";
+    var pinLabel = "A";
+
+    // Pick your pin (hole or no hole)
+    var pinSVGHole = "M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z";
+    var labelOriginHole = new google.maps.Point(12,15);
+    var pinSVGFilled = "M 12,2 C 8.1340068,2 5,5.1340068 5,9 c 0,5.25 7,13 7,13 0,0 7,-7.75 7,-13 0,-3.8659932 -3.134007,-7 -7,-7 z";
+    var labelOriginFilled =  new google.maps.Point(12,9);
+
+
+    var markerImageGreen = {  // https://developers.google.com/maps/documentation/javascript/reference/marker#MarkerLabel
+        path: pinSVGFilled,
+        anchor: new google.maps.Point(12,17),
+        fillOpacity: 1,
+        fillColor: pinColorGreen,
+        strokeWeight: 2,
+        strokeColor: "white",
+        scale: 2,
+        labelOrigin: labelOriginFilled
+    };
+
+    var markerImageRed = {  // https://developers.google.com/maps/documentation/javascript/reference/marker#MarkerLabel
+        path: pinSVGFilled,
+        anchor: new google.maps.Point(12,17),
+        fillOpacity: 1,
+        fillColor: pinColorRed,
+        strokeWeight: 2,
+        strokeColor: "white",
+        scale: 2,
+        labelOrigin: labelOriginFilled
+    };
+    var label = {
+        text: pinLabel,
+        color: "white",
+        fontSize: "12px",
+    };
+
+
+
+    var infowindow = new google.maps.InfoWindow();
+
+    var marker, i;
+
+    //for (i = 0; i < locations.length; i++) {
+
+    for (i = 0; i < locations.length; i++) {
+        if (locations[i][4] > 0) {
+        marker = new google.maps.Marker({
+        position: new google.maps.LatLng(locations[i][2], locations[i][3]),
+        label: locations[i][4],
+        icon: markerImageGreen,
+        map: map
+      });
+      }
+      
+/*      else {
+         marker = new google.maps.Marker({
+        position: new google.maps.LatLng(locations[i][2], locations[i][3]),
+        //label: locations[i][4],
+        icon: markerImageRed,
+        map: map
+      });
+      }*/
+
+       google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infocontent = '<a href="'+locations[i][0]+'" target=_blank>'+locations[i][1]+'</a> (Score:' + locations[i][4] + ')' 
+          infowindow.setContent(infocontent);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+    }
+</script>
+
+{% endblock %}
