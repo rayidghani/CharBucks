@@ -1,5 +1,6 @@
 *.pyc
 creds.py
+apikeys.sh
 python_files/latteart/images_to_label/*
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -2,6 +2,7 @@ import subprocess
 import urllib
 from . import yelp_helper
 from . import latteart_helpers
+from . import batch_process_locations
 import logging
 import requests
 import os
@@ -10,6 +11,7 @@ import os
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# todo: read from config file
 model_dir = 'latteart_model_files/'
 imgdir ='images/'
 threshold = 0.6
@@ -58,6 +60,14 @@ def score_yelpbiz(bizalias, verbose):
         return 0
 
 def score_location(location, limit, verbose):
-    return latteart_helpers.rank_bizs_in_location(location, limit, model_dir, imgdir, threshold)
+    return latteart_helpers.rank_bizs_in_location(location, limit, 0, model_dir, imgdir, threshold)
+
+def batch(start,offset):
+    return batch_process_locations.batch_process_locations('locations.txt', start, offset)
+
+def browse():
+    return latteart_helpers.load_logs("bizscores.log")
+
+
 
 

@@ -35,7 +35,7 @@ Great so far (at least for me). I've been using this app for the last 18 months 
 
 
 ### Limitations:
-I'm using latte art as a proxy for good coffee which works out ok for me but may not aklways generalize. Since I only care about getting good espresso/cappuccino/flat whites, this may not work with pourovers. Of course it's pretty easy to game by faking the photos.
+I'm using latte art as a proxy for good coffee which works 	out ok for me but may not aklways generalize. Since I only care about getting good espresso/cappuccino/flat whites, this may not work with pourovers. Of course it's pretty easy to game by faking the photos.
 
 ### Future Work:
 
@@ -104,6 +104,8 @@ Input: Location (zip, lat long, address, city), number of coffeeshops to return
 	6. Return ranked list of businesses
 
 
-
+# To Do:
+1. store persistent logs on s3
+2. config file
 
 

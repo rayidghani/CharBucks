@@ -18,6 +18,7 @@ import os
 import shutil
 import sys
 import logging
+import time
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
@@ -44,11 +45,11 @@ logger = logging.getLogger(__name__)
 # You can find them on
 # https://www.yelp.com/developers/v3/manage_app
 
-API_KEY = os.environ.get('API_KEY')
-if API_KEY:
-    logger.debug('Loaded Yelp API Key %s', API_KEY)
+YELP_API_KEY = os.environ.get('YELP_API_KEY')
+if YELP_API_KEY:
+    logger.debug('Loaded Yelp API Key %s', YELP_API_KEY)
 else:
-    logger.error('No environment variable set for Yelp API key - set API_KEY=XXX')
+    logger.error('No environment variable set for Yelp API key - export YELP_API_KEY=XXX')
 
 # API constants, you shouldn't have to change these.
 API_HOST = 'https://api.yelp.com'
@@ -60,13 +61,18 @@ def get_image_from_url(image_url, image_name):
 
     # download image from image_url
     # todo: catch error
-    r = requests.get(image_url, verify=False)
-    #image_name = "image_to_classify__" + str(random.randint(1,10000)) + ".jpg"
-    image_file = open(image_name, 'wb')
-    for chunk in r.iter_content(100000):
-        image_file.write(chunk)
-    image_file.close()
-    return image_name
+    try:
+        r = requests.get(image_url, verify=False)
+        #image_name = "image_to_classify__" + str(random.randint(1,10000)) + ".jpg"
+        image_file = open(image_name, 'wb')
+        for chunk in r.iter_content(100000):
+            image_file.write(chunk)
+        image_file.close()
+        return image_name
+    except:
+        logger.error('image could not be retrieved - waiting')
+        time.sleep(60)
+        return 0
 
 
 def request(host, path, api_key, url_params=None):
@@ -94,7 +100,7 @@ def request(host, path, api_key, url_params=None):
     return response.json()
 
 
-def search(api_key, location, num_of_businesses_to_get):
+def search(api_key, location, num_of_businesses_to_get, offset):
     """Query the Search API by a search term and location.
 
     Args:
@@ -106,13 +112,16 @@ def search(api_key, location, num_of_businesses_to_get):
     """
     # change here to get different categories or search terms
     # todo: load from config file
-    term = "espresso"
+    #term = "espresso"
+    term = "latte"
     category = "coffee"
+    # coffeeroasteries
     url_params = {
         'term': term.replace(' ', '+'),
         'categories': category.replace(' ', '+'),
         'location': location.replace(' ', '+'),
-        'limit': num_of_businesses_to_get
+        'limit': num_of_businesses_to_get,
+        'offset': offset
     }
     return request(API_HOST, SEARCH_PATH, api_key, url_params=url_params)
 
@@ -122,13 +131,13 @@ def query_api(term, location):
         term (str): The search term to query.
         location (str): The location of the business to query.
     """
-    response = search(API_KEY, term, location)
+    response = search(YELP_API_KEY, term, location)
     businesses = response.get('businesses')
     business_id = businesses[0]['id']
     print(u'{0} businesses found, querying business info ' \
         'for the top result "{1}" ...'.format(
             len(businesses), business_id))
-    response = get_business(API_KEY, business_id)
+    response = get_business(YELP_API_KEY, business_id)
     print(u'Result for business "{0}" found:'.format(business_id))
     pprint.pprint(response, indent=2)
 
@@ -141,9 +150,9 @@ def get_business(api_key, business_id):
         dict: The JSON response from the request.
     """
     business_path = BUSINESS_PATH + business_id
-    return request(API_HOST, business_path, API_KEY)
+    return request(API_HOST, business_path, api_key)
 
-def get_business_ids_from_api(location, num_of_businesses_to_get):
+def get_business_ids_from_api(location, num_of_businesses_to_get, offset):
     """Queries the API based on the input location from the user.
 
     Args:
@@ -152,7 +161,7 @@ def get_business_ids_from_api(location, num_of_businesses_to_get):
     #bearer_token = obtain_bearer_token(API_HOST, TOKEN_PATH)
 
     logger.info('Calling search api')
-    response = search(API_KEY, location, num_of_businesses_to_get)
+    response = search(YELP_API_KEY, location, num_of_businesses_to_get, offset)
     businesses = response.get('businesses')
     if not businesses:
         logger.error('No relevant businesses found in %s', location)
@@ -188,6 +197,14 @@ def get_business_images(biz_name,image_download_path):
     page = requests.get(urlfordrinks, verify=False)
     soup = BeautifulSoup(page.text, 'html.parser')
     photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
+    if len(photos) > 30:
+        # if we found more than 30 photos, go to the next page of photos
+        nexturldrinks = 'http://www.yelp.com/biz_photos/' + biz_name + '?start=30&tab=drink'
+        page = requests.get(nexturldrinks, verify=False)
+        soup = BeautifulSoup(page.text, 'html.parser')
+        new_photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
+        photos.extend(new_photos)
+
     logger.info('Found %s images for drinks', len(photos))
     image_counter=0
     if not(len(photos)):
@@ -195,16 +212,25 @@ def get_business_images(biz_name,image_download_path):
             page = requests.get(url, verify=False)
             soup = BeautifulSoup(page.text, 'html.parser')
             photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
+            # go to next page if it exists and get more photos
+            if len(photos) > 30:
+                nexturl = 'http://www.yelp.com/biz_photos/' + biz_name + '?start=30&tab=drink'
+                page = requests.get(nexturl, verify=False)
+                soup = BeautifulSoup(page.text, 'html.parser')
+                new_photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
+                photos.extend(new_photos)
             logger.info('No drink images found. Getting %s images for the business overall', len(photos))
     
     if len(photos):
     # if any photos were found
         for photo in photos:
-            get_image_from_url(photo['src'], image_download_path + str(image_counter) + ".jpg")
-            # urllib.urlretrieve(photo['src'], image_download_path + str(i) + ".jpg")
-            logger.info('Finished getting image %s', image_counter)
-            temp_log_file.write(str(image_counter) + ".jpg," + photo['src'] + "\n")
-            image_counter+=1
+            # todo: deal with error in getting image
+            if get_image_from_url(photo['src'], image_download_path + str(image_counter) + ".jpg"):
+
+                # urllib.urlretrieve(photo['src'], image_download_path + str(i) + ".jpg")
+                logger.info('Finished getting image %s', image_counter)
+                temp_log_file.write(str(image_counter) + ".jpg," + photo['src'] + "\n")
+                image_counter+=1
         logger.info('Finished getting %s images for %s', image_counter, biz_name)
         temp_log_file.close()
         return image_counter

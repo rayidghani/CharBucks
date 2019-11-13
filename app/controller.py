@@ -38,6 +38,44 @@ def classify_location():
             verbose = 0
         limit = request.form['limit']
         if location is not "":
-            positive_image_counts, total_image_counts, names = model.score_location(location, limit, verbose)
-            return render_template("location.html", location=location, scores=positive_image_counts, counts=total_image_counts, names=names)
+            positive_image_counts, total_image_counts, names, latitudes, longitudes = model.score_location(location, limit, verbose)
+            return render_template("location.html", location=location, scores=positive_image_counts, counts=total_image_counts, names=names, latitudes = latitudes, longitudes = longitudes)
     return render_template("location.html")
+
+@app.route('/location2', methods=['POST', 'GET'])
+def classify_location2():
+    if request.method == 'POST':
+        location = request.form['location']
+        if request.form.get("verbose"):
+            verbose = 1
+        else:
+            verbose = 0
+        limit = request.form['limit']
+        if location is not "":
+            positive_image_counts, total_image_counts, names, latitudes, longitudes = model.score_location(location, limit, verbose)
+            return render_template("location-exp.html", location=location, scores=positive_image_counts, counts=total_image_counts, names=names, latitudes = latitudes, longitudes = longitudes)
+    return render_template("location-exp.html")
+
+
+@app.route('/browse', methods=['POST', 'GET'])
+def browse():
+    a, positive_image_counts, total_image_counts, names, latitudes, longitudes = model.browse()
+    if request.method == 'POST':
+        location = request.form['location']
+        zoom = 10
+
+    else:
+        location = '41.881832, -87.623177'
+        zoom = 1
+    return render_template("browse.html", location=location, zoom=zoom, scores=positive_image_counts, counts=total_image_counts, names=names, latitudes = latitudes, longitudes = longitudes)
+
+
+@app.route('/batch', methods=['POST', 'GET'])
+def batch():
+    if request.method == 'POST':
+       offset = request.form['offset']
+       start = request.form['start']
+       positive_image_counts, total_image_counts, names = model.batch(start,offset)
+       return render_template("batch.html")
+    return render_template("batch.html")
+

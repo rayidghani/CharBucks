@@ -21,11 +21,11 @@ from . import yelp_helper
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-API_KEY = os.environ.get('API_KEY')
-if API_KEY:
-    logger.debug('Loaded Yelp API Key %s', API_KEY)
+YELP_API_KEY = os.environ.get('YELP_API_KEY')
+if YELP_API_KEY:
+    logger.debug('Loaded Yelp API Key %s', YELP_API_KEY)
 else:
-    logger.error('No environment variable set for Yelp API key - set API_KEY=XXX')
+    logger.error('No environment variable set for Yelp API key - export YELP_API_KEY=XXX')
 
 def load_graph(model_file):
     graph = tf.Graph()
@@ -143,7 +143,7 @@ def label_directory(image_path, model_dir, threshold):
 def is_ascii(s):
     return all(ord(c) < 128 for c in s)
 
-def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgdir, threshold):
+def rank_bizs_in_location(location, num_of_businesses_to_get, offset, model_dir, tmpimgdir, threshold):
     """Function used to get scores for num_of_businesses_to_get businesses in a location
 
     Args:
@@ -154,93 +154,152 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, model_dir, tmpimgd
         Returns three dicts - positive_counts, total_counts, biz_names
     """
 
+    bizlogfile = 'bizscores.log'
+    imglogfile = 'imgscores.log'
+
     if location is None:
         location = "chicago"
 
     logger.info('Loading log file for historically scored businesses')
-    date_scored, num_positive_images, num_total_images = load_logs("bizscores.log")
+    date_scored, num_positive_images, num_total_images, name, latitude, longitude, alias, city, state, rating, numreviews = load_bizlog(bizlogfile)
     logger.info('Starting to get %s businesses in %s from Yelp', num_of_businesses_to_get, location)
-    business_ids_list = yelp_helper.get_business_ids_from_api(location, num_of_businesses_to_get)
+    business_ids_list = yelp_helper.get_business_ids_from_api(location, num_of_businesses_to_get, offset)
     
     # remove businesses with non ascii characters
-    clean_business_ids =  [b for b in business_ids_list if is_ascii(b)]
-    logger.info('Got %s businesses in %s', len(clean_business_ids), location)
-    business_count = 0
+    if business_ids_list:
+        clean_business_ids =  [b for b in business_ids_list if is_ascii(b)]
+        logger.info('Got %s businesses in %s', len(clean_business_ids), location)
+        business_count = 0
 
-    if len(clean_business_ids) > 0:
-        biz_to_positive_image_count = {}  #store number of positive images for the business
-        biz_to_total_image_count = {} # store total number of imageas retrieved for the business
-        biz_to_name = {} # store the business name
-        for bizid in clean_business_ids:
-            bizresponse = yelp_helper.get_business(API_KEY, bizid)
-            bizurl = 'http://www.yelp.com/biz/' + bizid
-            bizname = bizresponse['name']
-            bizalias = bizresponse['alias']
-            #bizcoordinates = bizresponse['coordinates']
-            logger.info('Processing %s', bizname)
+        if len(clean_business_ids) > 0:
+            biz_to_positive_image_count = {}  #store number of positive images for the business
+            biz_to_total_image_count = {} # store total number of imageas retrieved for the business
+            biz_to_name = {} # store the business name
+            biz_to_alias = {}
+            biz_to_city = {}
+            biz_to_state = {}
+            biz_to_latitude = {} 
+            biz_to_longitude = {} 
+            biz_to_rating = {}
+            biz_to_numreviews = {}
 
-            if bizid in date_scored:
-                # if this business has already been scored earlier, skip it
-                # todo: put time limit 
-                positive_count = int(num_positive_images[bizid])
-                img_count = int(num_total_images[bizid])
-                logger.info('business %s already scored on %s with %s positive images', bizname, date_scored[bizid], positive_count)
-                biz_to_positive_image_count[bizurl] = positive_count
-                biz_to_total_image_count[bizurl] = img_count
-                biz_to_name[bizurl] = bizname
-            else:
-                num_images = 0
-                positive_count = 0
-                logger.info('Getting images for id %s with name %s and putting them in %s', bizid, bizname, tmpimgdir)
-                # check if we need to pass bizid or biz alias
-                num_images = yelp_helper.get_business_images(bizalias, tmpimgdir)
-                logger.info('Labeling %s images in directory %s with threshold %s', num_images, tmpimgdir, threshold)
-                if num_images:
-                    score_for_url, positive_count, img_count = label_directory(tmpimgdir, model_dir, threshold)
+            for bizid in clean_business_ids:
+                bizurl = 'http://www.yelp.com/biz/' + bizid
+                # loop over each business
+                if bizid in date_scored:
+                    # if this business has already been scored earlier, skip it
+                    # todo: put time limit 
+                    logger.info('business %s already scored on %s', name[bizid], date_scored[bizid])
+
+                    # fill dictionaries for this location
+                    biz_to_positive_image_count[bizurl] = int(num_positive_images[bizid])
+                    biz_to_total_image_count[bizurl] = int(num_total_images[bizid])
+                    biz_to_name[bizurl] = name[bizid]
+                    biz_to_latitude[bizurl] = latitude[bizid]
+                    biz_to_longitude[bizurl] = longitude[bizid]
+                    biz_to_alias[bizurl] = alias[bizid]
+                    biz_to_city[bizurl] = city[bizid]
+                    biz_to_state[bizurl] = state[bizid]
+                    biz_to_rating[bizurl] = rating[bizid]
+                    biz_to_numreviews[bizurl] = numreviews[bizid]
+
                 else:
-                    score_for_url, positive_count, img_count = 0
+                    # this business has not been scored before
+                    bizresponse = yelp_helper.get_business(YELP_API_KEY, bizid)
+                    logger.info("Processing url %s", bizurl)
+                    try:
+                        biz_to_name[bizurl] = bizresponse['name']
+                        biz_to_alias[bizurl]  = bizresponse['alias']
+                        biz_to_latitude[bizurl] = bizresponse['coordinates']['latitude']
+                        biz_to_longitude[bizurl] = bizresponse['coordinates']['longitude']
+                        biz_to_city[bizurl] = bizresponse['location']['city']
+                        biz_to_state[bizurl]  = bizresponse['location']['state']
+                        biz_to_rating[bizurl]  = bizresponse['rating']
+                        biz_to_numreviews[bizurl] = bizresponse['review_count']
+                        logger.info('got data for %s', biz_to_name[bizurl])
+
+                        num_images = 0
+                        positive_count = 0
+                        logger.info('Getting images for id %s with name %s and putting them in %s', bizid, bizresponse['name'], tmpimgdir)
+                        # todo: check if we need to pass bizid or biz alias
+                        num_images = yelp_helper.get_business_images(bizresponse['alias'], tmpimgdir)
+                        logger.info('Labeling %s images in directory %s with threshold %s', num_images, tmpimgdir, threshold)
+                        if num_images:
+                            # if we found photos we can now score them
+                            score_for_url, positive_count, img_count = label_directory(tmpimgdir, model_dir, threshold)
+                        else:
+                            # no images found in yelp
+                            score_for_url = {} 
+                            img_count = 0 
+                        biz_to_positive_image_count[bizurl]= positive_count
+                        biz_to_total_image_count[bizurl]= num_images
+
+                        # permanent logging for both images/urls and businesses
+                        with open(imglogfile, "a+") as f:
+                            imglogwriter = csv.writer(f, delimiter=',')
+                            for imgurl, score in score_for_url.items():
+                                #todo: make it a csv writer
+                                line = [str(datetime.datetime.today().strftime('%Y-%m-%d')),bizid ,bizresponse['name'] , imgurl, str(score)]
+                                imglogwriter.writerow(line)
+                                #f.write(str(datetime.datetime.today().strftime('%Y-%m-%d')) + ',' + bizid + ',' + bizresponse['name'] + ',' + imgurl  + ','  + str(score) + '\n')      
+                        
+                        with open(bizlogfile, "a+", newline='') as f:
+                            bizlogwriter = csv.writer(f, delimiter=',')
+                            #todo: fix
+                            line = [str(datetime.datetime.today().strftime('%Y-%m-%d')),bizid ,bizresponse['name'] , str(positive_count), str(img_count), bizresponse['location']['city'], bizresponse['location']['state'], bizresponse['coordinates']['latitude'], bizresponse['coordinates']['longitude'],bizresponse['alias'],bizresponse['rating'],bizresponse['review_count']]    
+                            bizlogwriter.writerow(line)
+                            #todo: write alias, city, state
+                            #f.write(str(datetime.datetime.today().strftime('%Y-%m-%d')) + ',' + biz + ',' + bizname + ',' + str(positive_count)  + ','  + str(img_count) + '\n')      
+                        logger.info('%s has %s out of %s arts', bizresponse['name'], positive_count, img_count)
+                    except KeyError:
+                        logger.info('key error processing %s', bizresponse)
+
+                business_count += 1
+                logger.info('Processed %s out of %s businesses', business_count, len(clean_business_ids))
+                        
+                        # if this was a new business and crawled, wait and go to the next one
+                if bizid not in date_scored:
+                    wait_time = random.randint(1, 5)
+                    logger.info('waiting %s seconds to process next business...',wait_time)
+                    time.sleep(wait_time)
                 
-                biz_to_positive_image_count[bizurl]= positive_count
-                biz_to_total_image_count[bizurl]= num_images
-                biz_to_name[bizurl] = bizname
-                
-                # permanent logging
-                with open("imgscores.log", "a+") as f:
-                    for imgurl, score in score_for_url.items():
-                        f.write(str(datetime.datetime.today().strftime('%Y-%m-%d')) + ',' + bizid + ',' + bizname + ',' + imgurl  + ','  + str(score) + '\n')      
-                
-                with open("bizscores.log", "a+", newline='') as f:
-                    writer = csv.writer(f, delimiter=',')
-                    line = [str(datetime.datetime.today().strftime('%Y-%m-%d')),bizid ,bizname , str(positive_count), str(img_count)]    
-                    writer.writerow(line)
-                    #f.write(str(datetime.datetime.today().strftime('%Y-%m-%d')) + ',' + biz + ',' + bizname + ',' + str(positive_count)  + ','  + str(img_count) + '\n')      
-            business_count += 1
-            logger.info('%s has %s out of %s arts', bizname, positive_count, img_count)
-            logger.info('Processed %s out of %s businesses', business_count, len(clean_business_ids))
-            
-            if bizid not in date_scored:
-                wait_time = random.randint(1, 5)
-                logger.info('waiting %s seconds to process next business...',wait_time)
-                time.sleep(wait_time)
-        
-        return biz_to_positive_image_count, biz_to_total_image_count, biz_to_name
+            return biz_to_positive_image_count, biz_to_total_image_count, biz_to_name, biz_to_latitude, biz_to_longitude
     else:
         logger.error('No businesses returned by get_business_ids_from_api', exc_info=True)
         return 0;
 
-def load_logs(bizlogfile):
+def load_bizlog(bizlogfile):
+    # 2019-10-16,RorY8SkHmDztoyazx_TgPg,LDU Coffee,32,54,Dallas,TX,32.81444,-96.78511,ldu-coffee-dallas,5.0,203
+    # date, id, name, pos, total, city, state, lat, long, alias, rating, numreviews
     with open(bizlogfile, mode='r') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         date_scored=dict()
         num_positive_images=dict()
         num_images=dict()
+        name=dict()
+        alias=dict()
+        latitude=dict()
+        longitude=dict()
+        city=dict()
+        state=dict()
+        rating=dict()
+        numreviews=dict()
 
-        for rows in csv_reader:
-            date_scored[rows[1]]=rows[0]
-            num_positive_images[rows[1]]=rows[3]
-            num_images[rows[1]]=rows[4]
+        for biz in csv_reader:
+            date_scored[biz[1]]=biz[0]
+            name[biz[1]]=biz[2]
+            num_positive_images[biz[1]]=int(biz[3])
+            num_images[biz[1]]=int(biz[4])
+            city[biz[1]]=biz[5]
+            state[biz[1]]=biz[6]
+            latitude[biz[1]]=biz[7]
+            longitude[biz[1]]=biz[8]
+            alias[biz[1]]=biz[9]
+            rating[biz[1]]=biz[10]
+            numreviews[biz[1]]=int(biz[11])
+
         logger.info('Loaded %s lines from log file', len(date_scored))
 
-    return date_scored, num_positive_images, num_images
+    return date_scored, num_positive_images, num_images, name, latitude, longitude, alias, city, state, rating, numreviews
 
 

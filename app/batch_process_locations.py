@@ -23,7 +23,7 @@ else:
 model_dir = 'latteart_model_files/'
 imgdir ='images/'
 threshold = 0.6
-
+bizlogfile='bizscores.log'
 
 def load_locations(locationfile):
     with open(locationfile, mode='r') as f:
@@ -31,12 +31,14 @@ def load_locations(locationfile):
         logger.info('Loaded %s locations', len(locations))
     return locations
 
-def batch_process_locations(locationfile, offset):
-
+def batch_process_locations(locationfile, start, offset):
     logger.info('Loading log file for historically scored businesses')
-    date_scored, num_positive_images, num_total_images = latteart_helpers.load_logs("bizscores.log")
+    date_scored, num_positive_images, num_total_images, name, latitude, longitude, alias, city, state, rating, numreviews = latteart_helpers.load_bizlog(bizlogfile)
+
     locations = load_locations(locationfile)
-    for l in locations:
+    # start = 0 for default
+    end = len(locations)
+    for l in locations[int(start):end]:
         latteart_helpers.rank_bizs_in_location(l, 50, offset, model_dir, imgdir, threshold)
         wait_time = 1
         logger.info('waiting %s seconds to process next location...', wait_time)
