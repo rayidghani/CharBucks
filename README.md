@@ -2,9 +2,6 @@
 
 All of us coffeesnobs have been there. You go to a new city and need to find the nearest (or not so nearest) place to get your coffee. The Charbucks around the corner is definitely not an option. You turn to Yelp and find the local 4.5 star coffeeshop. It has friendly baristas, lot of seating, free wifi, but can you trust the baristas to know how to make a good espresso or cappuccino? Yes they have the La Marzocco machine up front, and Stumptown or Intelligentsia beans on display but then you hear the sound of milk being destroyed while being steamed and you know you're in the wrong place. You go back to Yelp, read some more reviews of other nearby places, look through the photos to see if any of them can do decent latteart, but are quickly running out of patience and time.  This is where the magic of machine learning comes in.
 
-![goodart](https://wallpapercave.com/wp/wp5513240.png | width=100)
-
-
 # Latte Art Classifier
 
 After working on numerous projects in health, criminal justice, education, energy, workforce development, and social services, I realized that the area of social good I was missing from my portfolio was helping the world find good coffee. This of course ranked right below finding yet another way for restaurants to deliver food to hungry customers to make the world a better place.
