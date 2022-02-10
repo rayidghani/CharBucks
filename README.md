@@ -58,14 +58,13 @@ Currently deployed (not very stable state) at https://charbucks.herokuapp.com/
 
 ## Usage Instructions:
 
-Note: Use python 3.6 and not 3.7 (since tensorflow hasn't been updated to support 3.7 yet)
-
-1. Create virtualenv (virtualenv -p python3.6 charapp)
+1. Create virtualenv (virtualenv -p python3.9 charapp)
 2. If the virtualenv is already created, source charapp/bin/activate
 3. Clone this repo
 4. pip install -r requirements.txt (will install tensorflow locally)
 5. Get a [yelp api key] (https://www.yelp.com/developers/documentation/v3/get_started) and set environment variable (export API_KEY=XXXXX)
-5. Call various scripts locally or use the flask web app (python run.py) or run latteart.sh (sources into the virtualenv, runs the webapp, and opens the local browser)
+6. [optional] get a google api key
+7. Call various scripts locally or use the flask web app (python run.py) or run latteart.sh (sources into the virtualenv, runs the webapp, and opens the local browser)
 
 ### To train or retrain:
 
