@@ -112,9 +112,9 @@ def load_ratings(ratingfile):
 
 
 def main():
-    bizids = load_logs('../bizscores.log')
-    ratings = load_ratings('../bizratings.log')
-    with open("../bizratings.log", "a+") as f:
+    bizids = load_logs('../../bizscores.log')
+    ratings = load_ratings('../../bizratings.log')
+    with open("../../bizratings.log", "a+") as f:
         for bizid in bizids:
             if not(bizid in ratings):
                 bizresponse = get_business(YELP_API_KEY, bizid)

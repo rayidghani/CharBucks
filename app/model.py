@@ -66,7 +66,7 @@ def batch(start,offset):
     return batch_process_locations.batch_process_locations('locations.txt', start, offset)
 
 def browse():
-    return latteart_helpers.load_logs("bizscores.log")
+    return latteart_helpers.load_bizlog("bizscores.log")
 
 
 

@@ -29,7 +29,8 @@ else:
 
 def load_graph(model_file):
     graph = tf.Graph()
-    graph_def = tf.GraphDef()
+    # graph_def = tf.GraphDef()
+    graph_def = tf.compat.v1.GraphDef()
     with open(model_file, "rb") as f:
         graph_def.ParseFromString(f.read())
     with graph.as_default():
@@ -39,7 +40,7 @@ def load_graph(model_file):
 
 def load_labels(label_file):
     label = []
-    proto_as_ascii_lines = tf.gfile.GFile(label_file).readlines()
+    proto_as_ascii_lines = tf.io.gfile.GFile(label_file).readlines()
     for l in proto_as_ascii_lines:
         label.append(l.rstrip())
     return label
@@ -59,7 +60,7 @@ def label_image(image_path, model_dir):
     """
 
     # Read in the image_data
-    image_data = tf.gfile.FastGFile(image_path, 'rb').read()
+    image_data = tf.io.gfile.GFile(image_path, 'rb').read()
 
     #Load label file and strip off carriage return
     label_lines = load_labels(model_dir + "retrained_labels.txt")
@@ -68,7 +69,9 @@ def label_image(image_path, model_dir):
     graph = load_graph(model_dir + "retrained_graph.pb")
     logger.info('Loaded tensorflow graph from %s', model_dir)
 
-    with tf.Session(graph=graph) as sess:
+    # with tf.Session(graph=graph) as sess:
+    with tf.compat.v1.Session(graph=graph) as sess:
+
         # Feed the image_data as input to the graph and get first prediction
         softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')        
         predictions = sess.run(softmax_tensor, \
@@ -117,14 +120,14 @@ def label_directory(image_path, model_dir, threshold):
     graph = load_graph(model_dir + "retrained_graph.pb")
     logger.info('Loaded tensorflow graph from %s', model_dir)
 
-    with tf.Session(graph=graph) as sess:
+    with tf.compat.v1.Session(graph=graph) as sess:
         # Feed the image_data as input to the graph and get first prediction
         softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')    
         total_image_count = 0
         positive_image_count = 0
         score_for_url_hash = {}
         for image_file in image_files:
-            image_data = tf.gfile.FastGFile(image_file, 'rb').read()
+            image_data = tf.io.gfile.GFile(image_file, 'rb').read()
             predictions = sess.run(softmax_tensor, \
                  {'DecodeJpeg/contents:0': image_data})
             # Sort to show labels of first prediction in order of confidence
@@ -173,7 +176,7 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, offset, model_dir,
 
         if len(clean_business_ids) > 0:
             biz_to_positive_image_count = {}  #store number of positive images for the business
-            biz_to_total_image_count = {} # store total number of imageas retrieved for the business
+            biz_to_total_image_count = {} # store total number of images retrieved for the business
             biz_to_name = {} # store the business name
             biz_to_alias = {}
             biz_to_city = {}
@@ -187,6 +190,7 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, offset, model_dir,
                 bizurl = 'http://www.yelp.com/biz/' + bizid
                 # loop over each business
                 if bizid in date_scored:
+                # if (bizid in date_scored() and (date_scored[bizid] > datetime.now() - timedelta(months=6))
                     # if this business has already been scored earlier, skip it
                     # todo: put time limit 
                     logger.info('business %s already scored on %s', name[bizid], date_scored[bizid])

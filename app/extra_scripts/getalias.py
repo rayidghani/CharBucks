@@ -103,11 +103,11 @@ def load_ratings(ratingfile):
 
 
 def main():
-    ratings = load_ratings('../bizlogalias.log')
-    with open("../bizscores.log", mode='r') as csv_file:
+    ratings = load_ratings('../../bizlogalias.log')
+    with open("../../bizscores.log", mode='r') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
-        with open("../bizlogalias.log", "a+") as f:
-            outfile = csv.writer(open('../bizlogalias.log', 'a+'))
+        with open("../../bizlogalias.log", "a+") as f:
+            outfile = csv.writer(open('../../bizlogalias.log', 'a+'))
             for biz in csv_reader:
                 bizid=biz[1]
                 if not(bizid in ratings):

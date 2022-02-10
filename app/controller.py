@@ -59,7 +59,8 @@ def classify_location2():
 
 @app.route('/browse', methods=['POST', 'GET'])
 def browse():
-    a, positive_image_counts, total_image_counts, names, latitudes, longitudes = model.browse()
+#    a, positive_image_counts, total_image_counts, names, latitudes, longitudes = model.browse()
+    dates, positive_image_counts, total_image_counts, names, latitudes, longitudes, aliases, cities, states, ratings, numreviewslist = model.browse()
     if request.method == 'POST':
         location = request.form['location']
         zoom = 10
