@@ -1,0 +1,10 @@
+location_file:''
+score_log_file:''
+img_log_file:''
+yelp_search_term:'latte'
+yelp_search_category:'coffee'
+threshold:0.6
+model_dir:'latteart_model_files/'
+imgdir:'images/'
+yelp_api_key:''
+google_api_key:''
