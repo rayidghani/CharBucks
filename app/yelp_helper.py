@@ -41,6 +41,18 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+# todo: read from config file
+model_dir = 'latteart_model_files/'
+data_dir = 'data/'
+imgdir ='images/'
+threshold = 0.6
+bizlogfile=data_dir+'bizscores.log'
+imglogfile=data_dir+'imgscores.log'
+locationfile=data_dir+'locations.txt'
+
+
+
 # OAuth credential placeholders that must be filled in by users.
 # You can find them on
 # https://www.yelp.com/developers/v3/manage_app
@@ -57,22 +69,51 @@ SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH = '/v3/businesses/'  # Business ID will come after slash.
 
 
-def get_image_from_url(image_url, image_name):
+def get_business_ids_from_api(location, num_of_businesses_to_get, offset):
+    """Queries the API based on the input location from the user.
 
-    # download image from image_url
-    # todo: catch error
-    try:
-        r = requests.get(image_url, verify=False)
-        #image_name = "image_to_classify__" + str(random.randint(1,10000)) + ".jpg"
-        image_file = open(image_name, 'wb')
-        for chunk in r.iter_content(100000):
-            image_file.write(chunk)
-        image_file.close()
-        return image_name
-    except:
-        logger.error('image could not be retrieved - waiting')
-        time.sleep(60)
+    Args:
+        location (str): The location of the business to query.
+    """
+    logger.info('Calling search api for location %s and getting %d businesses', location, num_of_businesses_to_get)
+    response = search(YELP_API_KEY, location, num_of_businesses_to_get, offset)
+    businesses = response.get('businesses')
+    if not businesses:
+        logger.error('No relevant businesses found in %s', location)
         return 0
+    else:
+        num_of_businesses = len(businesses)
+        business_ids_list = []
+        for business in businesses:
+            business_ids_list.append(business['id'])
+        return business_ids_list
+
+
+def search(api_key, location, num_of_businesses_to_get, offset):
+    """Query the Search API by a search term and location.
+
+    Args:
+        location (str): The search location passed to the API.
+        num_of_businesses_to_get (int): # of businesses you want to get 
+        offset (int): start from offset
+
+    Returns:
+        dict: The JSON response from the request.
+    """
+    # change here to get different categories or search terms
+    # todo: load from config file
+    #term = "espresso"
+    term = "latte"
+    category = "coffee"
+    # coffeeroasteries
+    url_params = {
+        'term': term.replace(' ', '+'),
+        'categories': category.replace(' ', '+'),
+        'location': location.replace(' ', '+'),
+        'limit': num_of_businesses_to_get,
+        'offset': offset
+    }
+    return request(API_HOST, SEARCH_PATH, api_key, url_params=url_params)
 
 
 def request(host, path, api_key, url_params=None):
@@ -93,37 +134,16 @@ def request(host, path, api_key, url_params=None):
         'Authorization': 'Bearer %s' % api_key,
     }
 
-    logger.info('Querying %s with headers %s and url params %s ...', url, headers, url_params)
 
-    response = requests.request('GET', url, headers=headers, params=url_params, verify=False)
-    logger.debug('querying returned json %s',response.json())
-    return response.json()
-
-
-def search(api_key, location, num_of_businesses_to_get, offset):
-    """Query the Search API by a search term and location.
-
+def get_business(api_key, business_id):
+    """Query the Business API by a business ID.
     Args:
-        location (str): The search location passed to the API.
-        num_of_businesses_to_get (int): # of businesses you want to get 
-
+        business_id (str): The ID of the business to query.
     Returns:
         dict: The JSON response from the request.
     """
-    # change here to get different categories or search terms
-    # todo: load from config file
-    #term = "espresso"
-    term = "latte"
-    category = "coffee"
-    # coffeeroasteries
-    url_params = {
-        'term': term.replace(' ', '+'),
-        'categories': category.replace(' ', '+'),
-        'location': location.replace(' ', '+'),
-        'limit': num_of_businesses_to_get,
-        'offset': offset
-    }
-    return request(API_HOST, SEARCH_PATH, api_key, url_params=url_params)
+    business_path = BUSINESS_PATH + business_id
+    return request(API_HOST, business_path, api_key)
 
 def query_api(term, location):
     """Queries the API by the input values from the user.
@@ -142,36 +162,27 @@ def query_api(term, location):
     pprint.pprint(response, indent=2)
 
 
-def get_business(api_key, business_id):
-    """Query the Business API by a business ID.
-    Args:
-        business_id (str): The ID of the business to query.
-    Returns:
-        dict: The JSON response from the request.
-    """
-    business_path = BUSINESS_PATH + business_id
-    return request(API_HOST, business_path, api_key)
-
-def get_business_ids_from_api(location, num_of_businesses_to_get, offset):
-    """Queries the API based on the input location from the user.
-
-    Args:
-        location (str): The location of the business to query.
-    """
-    #bearer_token = obtain_bearer_token(API_HOST, TOKEN_PATH)
-
-    logger.info('Calling search api')
-    response = search(YELP_API_KEY, location, num_of_businesses_to_get, offset)
-    businesses = response.get('businesses')
-    if not businesses:
-        logger.error('No relevant businesses found in %s', location)
+def get_image_from_url(image_url, image_name):
+    # download image from image_url
+    try:
+        r = requests.get(image_url, verify=False)
+        image_file = open(image_name, 'wb')
+        for chunk in r.iter_content(100000):
+            image_file.write(chunk)
+        image_file.close()
+        return image_name
+    except:
+        logger.error('image could not be retrieved - waiting 60 seconds')
+        time.sleep(60)
         return 0
-    else:
-        num_of_businesses = len(businesses)
-        business_ids_list = []
-        for business in businesses:
-            business_ids_list.append(business['id'])
-        return business_ids_list
+
+
+    logger.info('Querying %s with headers %s and url params %s ...', url, headers, url_params)
+
+    response = requests.request('GET', url, headers=headers, params=url_params, verify=False)
+    logger.debug('querying returned json %s',response.json())
+    return response.json()
+
 
 def get_business_images(biz_name,image_download_path):
     """download yelp images for a business
@@ -181,7 +192,7 @@ def get_business_images(biz_name,image_download_path):
         image_download_path: directory to store images in.
 
     Returns:
-        Downloads and Returns the number of images downloaded.
+        Downloads and returns the number of images downloaded.
     """
     logger.info('Downloading images for %s and putting them in %s', biz_name, image_download_path)
 

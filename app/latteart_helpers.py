@@ -27,6 +27,17 @@ if YELP_API_KEY:
 else:
     logger.error('No environment variable set for Yelp API key - export YELP_API_KEY=XXX')
 
+
+model_dir = 'latteart_model_files/'
+data_dir = 'data/'
+imgdir ='images/'
+threshold = 0.6
+bizlogfile=data_dir+'bizscores.log'
+imglogfile=data_dir+'imgscores.log'
+locationfile=data_dir+'locations.txt'
+
+
+
 def load_graph(model_file):
     graph = tf.Graph()
     # graph_def = tf.GraphDef()
@@ -156,9 +167,6 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, offset, model_dir,
     Returns:
         Returns three dicts - positive_counts, total_counts, biz_names
     """
-
-    bizlogfile = 'bizscores.log'
-    imglogfile = 'imgscores.log'
 
     if location is None:
         location = "chicago"
@@ -302,7 +310,7 @@ def load_bizlog(bizlogfile):
             rating[biz[1]]=biz[10]
             numreviews[biz[1]]=int(biz[11])
 
-        logger.info('Loaded %s lines from log file', len(date_scored))
+        logger.info('Loaded %s lines from log file %s', len(date_scored),bizlogfile)
 
     return date_scored, num_positive_images, num_images, name, latitude, longitude, alias, city, state, rating, numreviews
 

@@ -13,8 +13,14 @@ logger = logging.getLogger(__name__)
 
 # todo: read from config file
 model_dir = 'latteart_model_files/'
+data_dir = 'data/'
 imgdir ='images/'
 threshold = 0.6
+bizlogfile=data_dir+'bizscores.log'
+imglogfile=data_dir+'imgscores.log'
+locationfile=data_dir+'locations.txt'
+
+
 
 
 def is_ascii(s):
@@ -28,7 +34,7 @@ def score_imageurl(image_url):
 
     # download image
     image_name = imgdir + "image.jpg"
-    logger.info('Calling yelp_helper to to download %s', image_url)
+    logger.info('Calling yelp_helper to download %s', image_url)
     if yelp_helper.get_image_from_url(image_url, image_name):
         # score image
         score = latteart_helpers.label_image(image_name, model_dir)
@@ -63,10 +69,10 @@ def score_location(location, limit, verbose):
     return latteart_helpers.rank_bizs_in_location(location, limit, 0, model_dir, imgdir, threshold)
 
 def batch(start,offset):
-    return batch_process_locations.batch_process_locations('locations.txt', start, offset)
+    return batch_process_locations.batch_process_locations(locationfile, start, offset)
 
 def browse():
-    return latteart_helpers.load_bizlog("bizscores.log")
+    return latteart_helpers.load_bizlog(bizlogfile)
 
 
 
