@@ -1,0 +1,13 @@
+1. install
+ - git clone
+ - set up virtualenv
+ - pip install requirements
+
+2. configure
+ - api keys
+ - directories and parameters
+ 
+3. run
+ - webrun
+ - batch run
+
