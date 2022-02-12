@@ -198,22 +198,46 @@ def get_business_images(biz_name,image_download_path):
     # make the directory again
     os.makedirs(image_download_path)
     temp_log_file = open(image_download_path + 'tmplog.txt', "w")
-    
+
+###    
     url = 'http://www.yelp.com/biz_photos/' + biz_name
     urlfordrinks = 'http://www.yelp.com/biz_photos/' + biz_name + '?tab=drink'
-
-    page = requests.get(urlfordrinks, verify=False)
-    soup = BeautifulSoup(page.text, 'html.parser')
-    photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
-    i = 30
-    if len(photos) > i:
-        # if we found more than 30 photos, go to the next page of photos
-        nexturldrinks = 'http://www.yelp.com/biz_photos/' + biz_name + '?start=' + i + '&tab=drink'
-        page = requests.get(nexturldrinks, verify=False)
+    nextpage = 1
+    photos=[]
+    while nextpage:
+        page = requests.get(urlfordrinks, verify=False)
         soup = BeautifulSoup(page.text, 'html.parser')
-        new_photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
-        photos.extend(new_photos)
-        i+=30
+        current_photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
+        photos.extend(current_photos)
+        nexturl = soup.find('a', {'class': 'next'})['href']
+        if nexturl:
+            nextpage = 1
+            nexturldrinks = 'http://www.yelp.com'+nexturl
+        else
+            nextpage = 0
+###
+
+
+  # url = 'http://www.yelp.com/biz_photos/' + biz_name
+  #   urlfordrinks = 'http://www.yelp.com/biz_photos/' + biz_name + '?tab=drink'
+  #   page = requests.get(urlfordrinks, verify=False)
+  #   soup = BeautifulSoup(page.text, 'html.parser')
+  #   #soup.find('a', {'class': 'next'})['href']
+  #   photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
+  #   i = 30
+  #   if len(photos) > i:
+  #       # if we found more than 30 photos, go to the next page of photos
+  #       nexturldrinks = 'http://www.yelp.com/biz_photos/' + biz_name + '?start=' + i + '&tab=drink'
+  #       page = requests.get(nexturldrinks, verify=False)
+  #       soup = BeautifulSoup(page.text, 'html.parser')
+  #       new_photos = soup.findAll ('img', {'class' : 'photo-box-img'}, limit=None)
+  #       photos.extend(new_photos)
+  #       i+=30
+
+####
+
+
+
 
     logger.info('Found %s images for drinks', len(photos))
     image_counter=0

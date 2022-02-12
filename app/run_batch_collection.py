@@ -19,12 +19,14 @@ else:
     logger.error('No environment variable set for Yelp API key - export YELP_API_KEY=XXX')
 
 #todo: read from config file
-
 model_dir = 'latteart_model_files/'
+data_dir = 'data/'
 imgdir ='images/'
 threshold = 0.6
-bizlogfile='bizscores.log'
-locationfile='locations.txt'
+bizlogfile=data_dir+'bizscores.log'
+imglogfile=data_dir+'imgscores.log'
+locationfile=data_dir+'locations.txt'
+
 
 def load_locations(locationfile):
     with open(locationfile, mode='r') as f:

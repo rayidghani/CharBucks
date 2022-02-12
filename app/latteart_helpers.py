@@ -267,7 +267,7 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, offset, model_dir,
                         logger.info('key error processing %s', bizresponse)
 
                 business_count += 1
-                logger.info('Processed %s out of %s businesses', business_count, len(clean_business_ids))
+                logger.info('Processed %s out of %s businesses in %s', business_count, len(clean_business_ids), location)
                         
                         # if this was a new business and crawled, wait and go to the next one
                 if bizid not in date_scored:

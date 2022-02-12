@@ -69,24 +69,28 @@ SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH = '/v3/businesses/'  # Business ID will come after slash.
 
 
-def get_business_ids_from_api(location, num_of_businesses_to_get, offset):
-    """Queries the API based on the input location from the user.
-
+def request(host, path, api_key, url_params=None):
+    """Given your API_KEY, send a GET request to the API.
     Args:
-        location (str): The location of the business to query.
+        host (str): The domain host of the API.
+        path (str): The path of the API after the domain.
+        API_KEY (str): Your API Key.
+        url_params (dict): An optional set of query parameters in the request.
+    Returns:
+        dict: The JSON response from the request.
+    Raises:
+        HTTPError: An error occurs from the HTTP request.
     """
-    logger.info('Calling search api for location %s and getting %d businesses', location, num_of_businesses_to_get)
-    response = search(YELP_API_KEY, location, num_of_businesses_to_get, offset)
-    businesses = response.get('businesses')
-    if not businesses:
-        logger.error('No relevant businesses found in %s', location)
-        return 0
-    else:
-        num_of_businesses = len(businesses)
-        business_ids_list = []
-        for business in businesses:
-            business_ids_list.append(business['id'])
-        return business_ids_list
+    url_params = url_params or {}
+    url = '{0}{1}'.format(host, quote(path.encode('utf8')))
+    headers = {
+        'Authorization': 'Bearer %s' % api_key,
+    }
+
+    logger.info('Querying %s with headers %s and url params %s ...', url, headers, url_params)
+    response = requests.request('GET', url, headers=headers, params=url_params, verify=False)
+    logger.debug('querying returned json %s',response.json())
+    return response.json()
 
 
 def search(api_key, location, num_of_businesses_to_get, offset):
@@ -114,25 +118,6 @@ def search(api_key, location, num_of_businesses_to_get, offset):
         'offset': offset
     }
     return request(API_HOST, SEARCH_PATH, api_key, url_params=url_params)
-
-
-def request(host, path, api_key, url_params=None):
-    """Given your API_KEY, send a GET request to the API.
-    Args:
-        host (str): The domain host of the API.
-        path (str): The path of the API after the domain.
-        API_KEY (str): Your API Key.
-        url_params (dict): An optional set of query parameters in the request.
-    Returns:
-        dict: The JSON response from the request.
-    Raises:
-        HTTPError: An error occurs from the HTTP request.
-    """
-    url_params = url_params or {}
-    url = '{0}{1}'.format(host, quote(path.encode('utf8')))
-    headers = {
-        'Authorization': 'Bearer %s' % api_key,
-    }
 
 
 def get_business(api_key, business_id):
@@ -248,4 +233,31 @@ def get_business_images(biz_name,image_download_path):
     else:
         logger.error('No images found', exc_info=True)
         return 0
+
+
+def get_business_ids_from_api(location, num_of_businesses_to_get, offset):
+    """Queries the API based on the input location from the user.
+
+    Args:
+        location (str): The location of the business to query.
+    """
+    logger.info('Calling search api for location %s and getting %s businesses', location, num_of_businesses_to_get)
+    response = search(YELP_API_KEY, location, num_of_businesses_to_get, offset)
+    if not response:
+        logger.error('No results were returned by search API')
+        return 0
+    else:
+        businesses = response.get('businesses')
+
+    if not businesses:
+        logger.error('No relevant businesses found in %s', location)
+        return 0
+    else:
+        num_of_businesses = len(businesses)
+        business_ids_list = []
+        for business in businesses:
+            business_ids_list.append(business['id'])
+        return business_ids_list
+
+
 
