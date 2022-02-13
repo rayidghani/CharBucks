@@ -5,6 +5,9 @@ from yelp_helper import get_image_from_url
 import base64
 import binascii
 import urllib
+import botocore
+
+
 
 
 def main():
@@ -19,6 +22,9 @@ def main():
 	session = boto3.Session(
 	aws_access_key_id=ACCESS_KEY_ID,
 	aws_secret_access_key=ACCESS_SECRET_KEY
+
+	s3bucket='rayid-personal'
+	directory='latteart-images/'
 	)
 
 	with open(imglogfile, 'r') as file:
@@ -27,12 +33,22 @@ def main():
 			print(row[3])
 			filename = a=urllib.parse.quote(row[3],'')
 			#base64.b64decode('aHR0cDovL2V4YW1wbGUuY29tL2hlcmUvdGhlcmUvaW5kZXguaHRtbA==')
-			if get_image_from_url(row[3], 'image.jpg'):
-				s3 = boto3.resource('s3')    
-				s3.Bucket('rayid-personal').upload_file('image.jpg','latteart-images/'+filename)
+			try:
+    			s3.Object(s3bucket, directory+filename).load()
+			except botocore.exceptions.ClientError as e:
+    			if e.response['Error']['Code'] == "404":
+        			# The object does not exist.
+        			if get_image_from_url(row[3], 'image.jpg'):
+						s3 = boto3.resource('s3')    
+						s3.Bucket(s3bucket).upload_file('image.jpg',directory+filename)
+					else:
+						print("error")
+    			else:
+       				 # Something else has gone wrong.
+        			raise
 			else:
-				print("error")
-
+    			# The object does exist.
+    			print("exists")
 
 
 if __name__ == '__main__':
