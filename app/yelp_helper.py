@@ -93,7 +93,7 @@ def request(host, path, api_key, url_params=None):
     return response.json()
 
 
-def search(api_key, location, num_of_businesses_to_get, offset):
+def search(api_key, term, category, location, num_of_businesses_to_get, offset):
     """Query the Search API by a search term and location.
 
     Args:
@@ -107,8 +107,9 @@ def search(api_key, location, num_of_businesses_to_get, offset):
     # change here to get different categories or search terms
     # todo: load from config file
     #term = "espresso"
-    term = "latte"
-    category = "coffee"
+    #terms=['coffee','espresso','latte','cappuccino']
+    #term = "coffee"
+    #category = "coffee"
     # coffeeroasteries
     url_params = {
         'term': term.replace(' ', '+'),
@@ -242,22 +243,27 @@ def get_business_ids_from_api(location, num_of_businesses_to_get, offset):
         location (str): The location of the business to query.
     """
     logger.info('Calling search api for location %s and getting %s businesses', location, num_of_businesses_to_get)
-    response = search(YELP_API_KEY, location, num_of_businesses_to_get, offset)
-    if not response:
-        logger.error('No results were returned by search API')
-        return 0
-    else:
-        businesses = response.get('businesses')
+    
+    terms=['coffee','espresso','latte','cappuccino']
+    category = "coffee"
+    business_ids_list = set()
 
-    if not businesses:
-        logger.error('No relevant businesses found in %s', location)
-        return 0
-    else:
-        num_of_businesses = len(businesses)
-        business_ids_list = []
-        for business in businesses:
-            business_ids_list.append(business['id'])
-        return business_ids_list
+    for term in terms:
+        response = search(YELP_API_KEY, term, category, location, num_of_businesses_to_get, offset)
+        if not response:
+            logger.error('No results were returned by search API')
+            #return 0
+        else:
+            businesses = response.get('businesses')
+            if not businesses:
+                logger.error('No relevant businesses found in %s', location)
+                #return 0
+            else:
+                num_of_businesses = len(businesses)
+                for business in businesses:
+                    business_ids_list.add(business['id'])
+
+    return list(business_ids_list)
 
 
 
