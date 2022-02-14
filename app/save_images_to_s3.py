@@ -19,13 +19,15 @@ def main():
 	ACCESS_SECRET_KEY = config.get('rayidpersonal', 'aws_secret_access_key') 
 
 	imglogfile='../data/imgscores.log'
+	s3bucket='rayid-personal'
+	directory='latteart-images/'
+	
 	session = boto3.Session(
 	aws_access_key_id=ACCESS_KEY_ID,
 	aws_secret_access_key=ACCESS_SECRET_KEY
 
-	s3bucket='rayid-personal'
-	directory='latteart-images/'
 	)
+	s3 = boto3.resource('s3') 
 
 	with open(imglogfile, 'r') as file:
 		csvreader = csv.reader(file)
@@ -34,21 +36,21 @@ def main():
 			filename = a=urllib.parse.quote(row[3],'')
 			#base64.b64decode('aHR0cDovL2V4YW1wbGUuY29tL2hlcmUvdGhlcmUvaW5kZXguaHRtbA==')
 			try:
-    			s3.Object(s3bucket, directory+filename).load()
+				s3.Object(s3bucket, directory+filename).load()
 			except botocore.exceptions.ClientError as e:
-    			if e.response['Error']['Code'] == "404":
-        			# The object does not exist.
-        			if get_image_from_url(row[3], 'image.jpg'):
-						s3 = boto3.resource('s3')    
+				if e.response['Error']['Code'] == "404":
+					# The object does not exist.
+					if get_image_from_url(row[3], 'image.jpg'):   
 						s3.Bucket(s3bucket).upload_file('image.jpg',directory+filename)
 					else:
 						print("error")
-    			else:
-       				 # Something else has gone wrong.
-        			raise
+				else:
+					# Something else has gone wrong.
+					raise
 			else:
-    			# The object does exist.
-    			print("exists")
+				# The object does exist.
+				print("exists")
+			
 
 
 if __name__ == '__main__':
