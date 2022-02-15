@@ -7,26 +7,25 @@ import binascii
 import urllib
 import botocore
 
-
-
-
 def main():
-	ACCESS_KEY_ID = ''
-	ACCESS_SECRET_KEY = ''
-	config = configparser.RawConfigParser()
-	config.read('/Users/rayid/.aws/credentials')
-	ACCESS_KEY_ID = config.get('rayidpersonal', 'aws_access_key_id') 
-	ACCESS_SECRET_KEY = config.get('rayidpersonal', 'aws_secret_access_key') 
+#	ACCESS_KEY_ID = ''
+#	ACCESS_SECRET_KEY = ''
+#	config = configparser.RawConfigParser()
+#	config.read('/Users/rayid/.aws/credentials')
+#	ACCESS_KEY_ID = config.get('rayidpersonal', 'aws_access_key_id') 
+#	ACCESS_SECRET_KEY = config.get('rayidpersonal', 'aws_secret_access_key') 
 
 	imglogfile='../data/imgscores.log'
 	s3bucket='rayid-personal'
 	directory='latteart-images/'
 	
-	session = boto3.Session(
-	aws_access_key_id=ACCESS_KEY_ID,
-	aws_secret_access_key=ACCESS_SECRET_KEY
 
-	)
+
+	session = boto3.Session(profile_name='rayidpersonal')
+#	aws_access_key_id=ACCESS_KEY_ID,
+#	aws_secret_access_key=ACCESS_SECRET_KEY
+#
+#	)
 	s3 = boto3.resource('s3') 
 
 	with open(imglogfile, 'r') as file:
