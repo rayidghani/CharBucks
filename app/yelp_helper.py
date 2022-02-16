@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 # todo: read from config file
 model_dir = 'latteart_model_files/'
 data_dir = 'data/'
-imgdir ='images/'
+imgdir ='latteart-images/'
 threshold = 0.6
 bizlogfile=data_dir+'bizscores.log'
 imglogfile=data_dir+'imgscores.log'

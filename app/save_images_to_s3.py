@@ -18,6 +18,7 @@ def main():
 	imglogfile='../data/imgscores.log'
 	s3bucket='rayid-personal'
 	directory='latteart-images/'
+	imgdir ='latteart-images/'
 	
 
 
