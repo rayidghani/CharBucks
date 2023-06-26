@@ -7,6 +7,7 @@ import binascii
 import urllib
 import botocore
 import pandas as pd
+import re
 
 def main():
 #	ACCESS_KEY_ID = ''
@@ -22,10 +23,11 @@ def main():
 	
 	with open(imglogfile, 'r') as file:
 		lines = file.readlines()
-    	for line in lines:
-    		extract=re.match("^.*(http.*?)\,(.*?)$",a)
+		for line in lines:
+			extract=re.match("^.*(http.*?)\,(.*?)$",line)
 			url=extract.group(1)
 			score=float(extract.group(2))
-			print("%s,%s",url,extract.group(2))
+			#print('%s,%s' %(url,extract.group(2)))
 
-
+if __name__ == '__main__':
+	main()
