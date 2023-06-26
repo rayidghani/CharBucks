@@ -14,7 +14,7 @@ import subprocess
 import time
 import random
 import urllib3
-import  datetime
+from datetime import  datetime, timedelta
 import csv
 from . import yelp_helper
 
@@ -197,8 +197,8 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, offset, model_dir,
             for bizid in clean_business_ids:
                 bizurl = 'http://www.yelp.com/biz/' + bizid
                 # loop over each business
-                if bizid in date_scored:
-                # if (bizid in date_scored() and (date_scored[bizid] > datetime.now() - timedelta(months=6))
+                # if bizid in date_scored:
+                if ((bizid in date_scored) and (datetime.strptime(date_scored[bizid], '%Y-%m-%d') > (datetime.now() - timedelta(days=180)))):
                     # if this business has already been scored earlier, skip it
                     # todo: put time limit 
                     logger.info('business %s already scored on %s', name[bizid], date_scored[bizid])
@@ -251,17 +251,17 @@ def rank_bizs_in_location(location, num_of_businesses_to_get, offset, model_dir,
                             imglogwriter = csv.writer(f, delimiter=',')
                             for imgurl, score in score_for_url.items():
                                 #todo: make it a csv writer
-                                line = [str(datetime.datetime.today().strftime('%Y-%m-%d')),bizid ,bizresponse['name'] , imgurl, str(score)]
+                                line = [str(datetime.today().strftime('%Y-%m-%d')),bizid ,bizresponse['name'] , imgurl, str(score)]
                                 imglogwriter.writerow(line)
-                                #f.write(str(datetime.datetime.today().strftime('%Y-%m-%d')) + ',' + bizid + ',' + bizresponse['name'] + ',' + imgurl  + ','  + str(score) + '\n')      
+                                #f.write(str(datetime.today().strftime('%Y-%m-%d')) + ',' + bizid + ',' + bizresponse['name'] + ',' + imgurl  + ','  + str(score) + '\n')      
                         
                         with open(bizlogfile, "a+", newline='') as f:
                             bizlogwriter = csv.writer(f, delimiter=',')
                             #todo: fix
-                            line = [str(datetime.datetime.today().strftime('%Y-%m-%d')),bizid ,bizresponse['name'] , str(positive_count), str(img_count), bizresponse['location']['city'], bizresponse['location']['state'], bizresponse['coordinates']['latitude'], bizresponse['coordinates']['longitude'],bizresponse['alias'],bizresponse['rating'],bizresponse['review_count']]    
+                            line = [str(datetime.today().strftime('%Y-%m-%d')),bizid ,bizresponse['name'] , str(positive_count), str(img_count), bizresponse['location']['city'], bizresponse['location']['state'], bizresponse['coordinates']['latitude'], bizresponse['coordinates']['longitude'],bizresponse['alias'],bizresponse['rating'],bizresponse['review_count']]    
                             bizlogwriter.writerow(line)
                             #todo: write alias, city, state
-                            #f.write(str(datetime.datetime.today().strftime('%Y-%m-%d')) + ',' + biz + ',' + bizname + ',' + str(positive_count)  + ','  + str(img_count) + '\n')      
+                            #f.write(str(datetime.today().strftime('%Y-%m-%d')) + ',' + biz + ',' + bizname + ',' + str(positive_count)  + ','  + str(img_count) + '\n')      
                         logger.info('%s has %s out of %s arts', bizresponse['name'], positive_count, img_count)
                     except KeyError:
                         logger.info('key error processing %s', bizresponse)
