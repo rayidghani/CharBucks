@@ -42,6 +42,21 @@ def classify_location():
             return render_template("location.html", location=location, scores=positive_image_counts, counts=total_image_counts, names=names, latitudes = latitudes, longitudes = longitudes)
     return render_template("location.html")
 
+@app.route('/offlinelocation', methods=['POST', 'GET'])
+def retrieve_location_offline():
+    if request.method == 'POST':
+        location = request.form['location']
+        if request.form.get("verbose"):
+            verbose = 1
+        else:
+            verbose = 0
+        limit = request.form['limit']
+        if location is not "":
+            positive_image_counts, total_image_counts, names, latitudes, longitudes = model.offline_location(location, limit, verbose)
+            return render_template("offlinelocation_nomap.html", location=location, scores=positive_image_counts, counts=total_image_counts, names=names, latitudes = latitudes, longitudes = longitudes)
+    return render_template("offlinelocation_nomap.html")
+
+
 @app.route('/location2', methods=['POST', 'GET'])
 def classify_location2():
     if request.method == 'POST':
