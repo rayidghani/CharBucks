@@ -68,6 +68,9 @@ def score_yelpbiz(bizalias, verbose):
 def score_location(location, limit, verbose):
     return latteart_helpers.rank_bizs_in_location(location, limit, 0, model_dir, imgdir, threshold)
 
+def offline_location(location, limit, verbose):
+    return latteart_helpers.offline_rank_bizs_in_location(location, limit, 0, model_dir, imgdir, threshold)
+
 def batch(start,offset):
     return batch_process_locations.batch_process_locations(locationfile, start, offset)
 
