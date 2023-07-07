@@ -157,6 +157,79 @@ def label_directory(image_path, model_dir, threshold):
 def is_ascii(s):
     return all(ord(c) < 128 for c in s)
 
+
+def offline_rank_bizs_in_location(location, num_of_businesses_to_get, offset, model_dir, tmpimgdir, threshold):
+    """Function used to get scores for num_of_businesses_to_get businesses in a location
+
+    Args:
+        location: location (can be city, zip, lat long string)
+        num_of_businesses_to_get: number of business to get and score
+
+    Returns:
+        Returns three dicts - positive_counts, total_counts, biz_names
+    """
+
+    if location is None:
+        location = "chicago"
+
+    logger.info('Loading log file for historically scored businesses')
+    date_scored, num_positive_images, num_total_images, name, latitude, longitude, alias, city, state, rating, numreviews = load_bizlog(bizlogfile)
+    logger.info('Starting to get %s businesses in %s from Yelp', num_of_businesses_to_get, location)
+    business_ids_list = yelp_helper.get_business_ids_from_api(location, num_of_businesses_to_get, offset)
+    
+    # remove businesses with non ascii characters
+    if business_ids_list:
+        clean_business_ids =  [b for b in business_ids_list if is_ascii(b)]
+        logger.info('Got %s businesses in %s', len(clean_business_ids), location)
+        business_count = 0
+
+        if len(clean_business_ids) > 0:
+            biz_to_positive_image_count = {}  #store number of positive images for the business
+            biz_to_total_image_count = {} # store total number of images retrieved for the business
+            biz_to_name = {} # store the business name
+            biz_to_alias = {}
+            biz_to_city = {}
+            biz_to_state = {}
+            biz_to_latitude = {} 
+            biz_to_longitude = {} 
+            biz_to_rating = {}
+            biz_to_numreviews = {}
+
+            for bizid in clean_business_ids:
+                bizurl = 'http://www.yelp.com/biz/' + bizid
+                # loop over each business
+                # if bizid in date_scored:
+                if ((bizid in date_scored)):
+                    # if this business has already been scored earlier, skip it
+                    # todo: put time limit 
+                    logger.info('business %s already scored on %s', name[bizid], date_scored[bizid])
+
+                    # fill dictionaries for this location
+                    biz_to_positive_image_count[bizurl] = int(num_positive_images[bizid])
+                    biz_to_total_image_count[bizurl] = int(num_total_images[bizid])
+                    biz_to_name[bizurl] = name[bizid]
+                    biz_to_latitude[bizurl] = latitude[bizid]
+                    biz_to_longitude[bizurl] = longitude[bizid]
+                    biz_to_alias[bizurl] = alias[bizid]
+                    biz_to_city[bizurl] = city[bizid]
+                    biz_to_state[bizurl] = state[bizid]
+                    biz_to_rating[bizurl] = rating[bizid]
+                    biz_to_numreviews[bizurl] = numreviews[bizid]
+
+                else:
+                    # this business has not been scored before
+                    logger.info("skipped")
+
+                business_count += 1
+                logger.info('Processed %s out of %s businesses in %s', business_count, len(clean_business_ids), location)
+                        
+                        # if this was a new business and crawled, wait and go to the next one
+                
+            return biz_to_positive_image_count, biz_to_total_image_count, biz_to_name, biz_to_latitude, biz_to_longitude
+    else:
+        logger.error('No businesses returned by get_business_ids_from_api', exc_info=True)
+        return 0;
+
 def rank_bizs_in_location(location, num_of_businesses_to_get, offset, model_dir, tmpimgdir, threshold):
     """Function used to get scores for num_of_businesses_to_get businesses in a location
 
