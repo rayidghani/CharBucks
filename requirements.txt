@@ -64,3 +64,4 @@ watchdog==2.1.6
 Werkzeug==2.0.3
 wrapt==1.13.3
 zipp==3.7.0
+gunicorn
