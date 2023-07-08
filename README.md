@@ -56,7 +56,7 @@ The web app can:
 
 ## Set up for deploying to heroku
 
-Currently deployed (not very stable state) at https://charbucks.herokuapp.com/ 
+Currently deployed (not very stable state) at [https://charbucks.herokuapp.com/ ](https://latteart.onrender.com/offlinelocation)
 
 ## Usage Instructions:
 
